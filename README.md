@@ -23,7 +23,7 @@ Add info here
 # Developing the workflow locally
 
 1. run `./init.py --dev-only` (requires Python3)
-  - this will skip creating the workflow working directory and subfolders
+    - this will skip creating the workflow working directory and subfolders
 2. activate the created Conda environment: `conda activate ./dev_env`
 3. write your code
 4. run the recommended code checks with the following tools:
