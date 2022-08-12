@@ -27,3 +27,13 @@ DIR_REPO = DIR_REPOSITORY
 
 DIR_WORKING = pathlib.Path(workflow.workdir_init).resolve(strict=True)
 WORKDIR = DIR_WORKING
+
+
+if not pathlib.Path(config['reference_container_folder']).is_dir():
+    err_msg = f"\n!!! USER ACTION REQUIRED !!!\n"
+    err_msg += f"Please provide a config file with the following information:\n"
+    err_msg += f"reference_container_folder: <path to folder>\n"
+    err_msg += f"reference_container_names: <list of container names to use>\n\n"
+    raise ValueError(err_msg)
+else:
+    DIR_REFCON = pathlib.Path(config['reference_container_folder']).resolve(strict=True)
