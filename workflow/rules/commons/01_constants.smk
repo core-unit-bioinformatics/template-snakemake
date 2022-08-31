@@ -13,6 +13,8 @@ assert isinstance(USE_SINGULARITY, bool)
 USE_ENV_MODULES = workflow.use_env_modules
 assert isinstance(USE_ENV_MODULES, bool)
 
+ENV_MODULE_SINGULARITY = config.get("env_module_singularity", "Singularity")
+
 DIR_SNAKEFILE = pathlib.Path(workflow.basedir).resolve(strict=True)
 PATH_SNAKEFILE = pathlib.Path(workflow.main_snakefile).resolve(strict=True)
 assert DIR_SNAKEFILE.samefile(PATH_SNAKEFILE.parent)
@@ -28,12 +30,24 @@ DIR_REPO = DIR_REPOSITORY
 DIR_WORKING = pathlib.Path(workflow.workdir_init).resolve(strict=True)
 WORKDIR = DIR_WORKING
 
+# specific constants for the use of reference containers
+# as part of the pipeline
+USE_REFERENCE_CONTAINER = config.get("use_reference_container", False)
+assert isinstance(USE_REFERENCE_CONTAINER, bool)
+USE_REFCON = USE_REFERENCE_CONTAINER
 
-if not pathlib.Path(config['reference_container_folder']).is_dir():
-    err_msg = f"\n!!! USER ACTION REQUIRED !!!\n"
-    err_msg += f"Please provide a config file with the following information:\n"
-    err_msg += f"reference_container_folder: <path to folder>\n"
-    err_msg += f"reference_container_names: <list of container names to use>\n\n"
-    raise ValueError(err_msg)
+if USE_REFERENCE_CONTAINER:
+    try:
+        DIR_REFERENCE_CONTAINER = config["reference_container_store"]
+    except KeyError:
+        raise KeyError(
+            "The config option 'use_reference_container' is set to True. "
+            "Consequently, the option 'reference_container_store' must be "
+            "set to an existing folder on the file system containing the "
+            "reference container images (*.sif files)."
+        )
+    else:
+        DIR_REFERENCE_CONTAINER = pathlib.Path(DIR_REFERENCE_CONTAINER).resolve(strict=True)
 else:
-    DIR_REFCON = pathlib.Path(config['reference_container_folder']).resolve(strict=True)
+    DIR_REFERENCE_CONTAINER = pathlib.Path("/")
+DIR_REFCON = DIR_REFERENCE_CONTAINER
