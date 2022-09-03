@@ -1,13 +1,15 @@
-
 import pandas
 
-localrules: refcon_dump_manifest, refcon_cache_manifests
+
+localrules:
+    refcon_dump_manifest,
+    refcon_cache_manifests,
 
 
 # Snakemake interacts with Singularity containers using "exec",
 # which leads to a problem for the "refcon_run_get_file".
 # Dynamically setting the Singularity container for the
-# "singularity:" keyword results in a parsing error for
+# "container:" (former "singularity:") keyword results in a parsing error for
 # unclear reasons. Hence, for now, force the use of
 # "singularity run" to extract data from reference containers
 # (i.e., treat them like a regular file)
@@ -17,15 +19,19 @@ def refcon_find_container(manifest_cache, ref_filename):
 
     if not pathlib.Path(manifest_cache).is_file():
         # could be a dry run
-        return 'No-manifest-cache-available'
+        return "No-manifest-cache-available"
 
     manifests = pandas.read_csv(manifest_cache, sep="\t", header=0)
 
-    refcon_names = sorted(manifests['refcon_name'].unique())
+    refcon_names = sorted(manifests["refcon_name"].unique())
 
-    matched_names = set(manifests.loc[manifests['name'] == ref_filename, 'refcon_name'])
-    matched_alias1 = set(manifests.loc[manifests['alias1'] == ref_filename, 'refcon_name'])
-    matched_alias2 = set(manifests.loc[manifests['alias2'] == ref_filename, 'refcon_name'])
+    matched_names = set(manifests.loc[manifests["name"] == ref_filename, "refcon_name"])
+    matched_alias1 = set(
+        manifests.loc[manifests["alias1"] == ref_filename, "refcon_name"]
+    )
+    matched_alias2 = set(
+        manifests.loc[manifests["alias2"] == ref_filename, "refcon_name"]
+    )
 
     select_container = sorted(matched_names.union(matched_alias1, matched_alias2))
     if len(select_container) > 1:
@@ -38,7 +44,7 @@ def refcon_find_container(manifest_cache, ref_filename):
         )
     else:
         pass
-    container_path = DIR_REFCON / pathlib.Path(select_container[0] + '.sif')
+    container_path = DIR_REFCON / pathlib.Path(select_container[0] + ".sif")
     return container_path
 
 
@@ -72,43 +78,46 @@ if USE_REFERENCE_CONTAINER:
 
     rule refcon_dump_manifest:
         input:
-            sif = DIR_REFCON / pathlib.Path('{refcon_name}.sif')
+            sif=DIR_REFCON / pathlib.Path("{refcon_name}.sif"),
         output:
-            manifest = 'cache/refcon/{refcon_name}.manifest'
+            manifest="cache/refcon/{refcon_name}.manifest",
         envmodules:
-            ENV_MODULE_SINGULARITY
+            ENV_MODULE_SINGULARITY,
         shell:
-            '{input.sif} manifest > {output.manifest}'
+            "{input.sif} manifest > {output.manifest}"
 
     rule refcon_run_get_file:
         input:
-            cache = 'cache/refcon/refcon_manifests.cache'
+            cache="cache/refcon/refcon_manifests.cache",
         output:
-            'global_ref/{filename}'
+            "global_ref/{filename}",
         envmodules:
-            ENV_MODULE_SINGULARITY
+            ENV_MODULE_SINGULARITY,
         params:
-            refcon_path = lambda wildcards, input: refcon_find_container(input.cache, wildcards.filename)
+            refcon_path=lambda wildcards, input: refcon_find_container(
+                input.cache, wildcards.filename
+            ),
         shell:
-            '{params.refcon_path} get {wildcards.filename} {output}'
-
+            "{params.refcon_path} get {wildcards.filename} {output}"
 
     rule refcon_cache_manifests:
         input:
-            manifests = expand(
-                'cache/refcon/{refcon_name}.manifest',
-                refcon_name=load_reference_container_names()
-            )
+            manifests=expand(
+                "cache/refcon/{refcon_name}.manifest",
+                refcon_name=load_reference_container_names(),
+            ),
         output:
-            cache = 'cache/refcon/refcon_manifests.cache'
+            cache="cache/refcon/refcon_manifests.cache",
         run:
             merged_manifests = []
             for manifest_file in input.manifests:
                 container_name = pathlib.Path(manifest_file).stem
-                manifest = pandas.read_csv(manifest_file, sep='\t', header=0)
-                manifest['refcon_name'] = container_name
+                manifest = pandas.read_csv(manifest_file, sep="\t", header=0)
+                manifest["refcon_name"] = container_name
                 merged_manifests.append(manifest)
-            merged_manifests = pandas.concat(merged_manifests, axis=0, ignore_index=False)
+            merged_manifests = pandas.concat(
+                merged_manifests, axis=0, ignore_index=False
+            )
 
-            merged_manifests.to_csv(output.cache, header=True, index=False, sep='\t')
-        # END OF RUN BLOCK
+            merged_manifests.to_csv(output.cache, header=True, index=False, sep="\t")
+            # END OF RUN BLOCK

@@ -1,4 +1,5 @@
 import datetime
+import os
 import pathlib
 import subprocess
 import sys
@@ -12,6 +13,17 @@ def logerr(msg):
 def logout(msg):
     write_log_message(sys.stdout, "INFO", msg)
     return
+
+
+def get_username():
+    user = os.getlogin()
+    return user
+
+
+def get_timestamp():
+    # format: ISO 8601
+    ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    return ts
 
 
 def write_log_message(stream, level, message):
