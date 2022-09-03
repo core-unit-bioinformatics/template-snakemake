@@ -1,7 +1,17 @@
+import yaml
 
 include: "rules/00_modules.smk"
 
 rule run_all:
     input:
+        "results/run_config.yaml",
         [],
 
+rule dump_config:
+    output:
+        "results/run_config.yaml",
+    run:
+        runinfo = {'_timestamp': get_timestamp(), '_username': get_username()} 
+        runinfo.update(config)
+        with open (r'results/run_config.yaml', 'w') as file:
+            yaml.dump(runinfo, file)

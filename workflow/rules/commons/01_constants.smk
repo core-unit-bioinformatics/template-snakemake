@@ -47,7 +47,9 @@ if USE_REFERENCE_CONTAINER:
             "reference container images (*.sif files)."
         )
     else:
-        DIR_REFERENCE_CONTAINER = pathlib.Path(DIR_REFERENCE_CONTAINER).resolve(strict=True)
+        DIR_REFERENCE_CONTAINER = pathlib.Path(DIR_REFERENCE_CONTAINER).resolve(
+            strict=True
+        )
 else:
     DIR_REFERENCE_CONTAINER = pathlib.Path("/")
 DIR_REFCON = DIR_REFERENCE_CONTAINER
