@@ -1,5 +1,5 @@
 import datetime
-import os
+import getpass
 import pathlib
 import subprocess
 import sys
@@ -16,7 +16,7 @@ def logout(msg):
 
 
 def get_username():
-    user = os.getlogin()
+    user = getpass.getuser()
     return user
 
 
@@ -28,7 +28,7 @@ def get_timestamp():
 
 def write_log_message(stream, level, message):
     # format: ISO 8601
-    ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    ts = get_timestamp()
     fmt_msg = f"{ts} - LOG {level}\n{message.strip()}\n"
     stream.write(fmt_msg)
     return
@@ -67,7 +67,7 @@ def rsync_f2d(source_file, target_dir):
 def rsync_f2f(source_file, target_file):
     abs_source = pathlib.Path(source_file).resolve(strict=True)
     abs_target = pathlib.Path(target_file).resolve(strict=False)
-    abs_target.mkdir(parents=True, exist_ok=True)
+    abs_target.parent.mkdir(parents=True, exist_ok=True)
     rsync(str(abs_source), str(abs_target))
     return
 
