@@ -2,6 +2,9 @@ import yaml
 
 include: "rules/00_modules.smk"
 
+localrules:
+    dump_config,
+
 rule run_all:
     input:
         "results/run_config.yaml",
