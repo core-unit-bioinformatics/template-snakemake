@@ -1,20 +1,23 @@
-import yaml
-
 include: "rules/00_modules.smk"
 
-localrules:
-    dump_config,
 
 rule run_all:
     input:
-        "results/run_config.yaml",
+        RUN_CONFIG_RELPATH,
         [],
 
-rule dump_config:
-    output:
-        "results/run_config.yaml",
-    run:
-        runinfo = {'_timestamp': get_timestamp(), '_username': get_username()} 
-        runinfo.update(config)
-        with open (r'results/run_config.yaml', 'w') as file:
-            yaml.dump(runinfo, file)
+
+onsuccess:
+    shell(f"rm -rf {DIR_CLUSTERLOG_OUT}")
+    shell(f"rm -rf {DIR_CLUSTERLOG_ERR}")
+    shell(f"rm -f {RUN_CONFIG_RELPATH.with_suffix('.bak.yaml')}")
+
+
+onerror:
+    try:
+        rsync_f2f(RUN_CONFIG_RELPATH, RUN_CONFIG_RELPATH.with_suffix(".bak.yaml"))
+    except FileNotFoundError:
+        # can happen when creation of a single file is requested
+        # during development
+        pass
+    shell(f"rm -f {RUN_CONFIG_RELPATH}")
