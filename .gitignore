@@ -139,3 +139,7 @@ dev_env/
 
 # Ignore Snakemake metadata folder
 .snakemake/
+
+# Ignore default working directory in case it was accidentally created
+# in the Snakemake repo folder
+wd/
