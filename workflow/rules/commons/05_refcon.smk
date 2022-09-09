@@ -1,20 +1,6 @@
 import pandas
 
 
-localrules:
-    refcon_dump_manifest,
-    refcon_cache_manifests,
-
-
-# Snakemake interacts with Singularity containers using "exec",
-# which leads to a problem for the "refcon_run_get_file".
-# Dynamically setting the Singularity container for the
-# "container:" (former "singularity:") keyword results in a parsing error for
-# unclear reasons. Hence, for now, force the use of
-# "singularity run" to extract data from reference containers
-# (i.e., treat them like a regular file)
-
-
 def refcon_find_container(manifest_cache, ref_filename):
 
     if not pathlib.Path(manifest_cache).is_file():
@@ -44,7 +30,7 @@ def refcon_find_container(manifest_cache, ref_filename):
         )
     else:
         pass
-    container_path = DIR_REFCON / pathlib.Path(select_container[0] + ".sif")
+    container_path = DIR_REFCON.joinpath(select_container[0] + ".sif")
     return container_path
 
 
@@ -62,7 +48,7 @@ def load_reference_container_names():
     for req_con in requested_container:
         if req_con not in existing_container:
             missing_container += f"\nMissing reference container: {req_con}"
-            missing_container += f"\nExpected container image location: {DIR_REFCON / pathlib.Path(req_con)}.sif\n"
+            missing_container += f"\nExpected container image location: {DIR_REFCON.joinpath(req_con)}.sif\n"
 
     if missing_container:
         logerr(missing_container)
@@ -76,9 +62,13 @@ def load_reference_container_names():
 
 if USE_REFERENCE_CONTAINER:
 
+    localrules:
+        refcon_dump_manifest,
+        refcon_cache_manifests,
+
     rule refcon_dump_manifest:
         input:
-            sif=DIR_REFCON / pathlib.Path("{refcon_name}.sif"),
+            sif=DIR_REFCON.joinpath("{refcon_name}.sif"),
         output:
             manifest="cache/refcon/{refcon_name}.manifest",
         envmodules:
@@ -87,10 +77,19 @@ if USE_REFERENCE_CONTAINER:
             "{input.sif} manifest > {output.manifest}"
 
     rule refcon_run_get_file:
+        """
+        Snakemake interacts with Singularity containers using "exec",
+        which leads to a problem for the "refcon_run_get_file".
+        Dynamically setting the Singularity container for the
+        "container:" (former "singularity") keyword results in a parsing error for
+        unclear reasons. Hence, for now, force the use of
+        "singularity run" to extract data from reference containers
+        (i.e., treat them like a regular file)
+        """
         input:
             cache="cache/refcon/refcon_manifests.cache",
         output:
-            "global_ref/{filename}",
+            DIR_GLOBAL_REF.joinpath("{filename}"),
         envmodules:
             ENV_MODULE_SINGULARITY,
         params:
