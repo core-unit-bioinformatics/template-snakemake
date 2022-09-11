@@ -57,27 +57,43 @@ def find_script(script_name, extension="py"):
 
 
 def rsync_f2d(source_file, target_dir):
+    """
+    Convenience function to 'rsync' a source
+    file into a target directory (file name
+    not changed) in a 'run' block of a
+    Snakemake rule.
+    """
     abs_source = pathlib.Path(source_file).resolve(strict=True)
     abs_target = pathlib.Path(target_dir).resolve(strict=False)
     abs_target.mkdir(parents=True, exist_ok=True)
-    rsync(str(abs_source), str(abs_target))
+    _rsync(str(abs_source), str(abs_target))
     return
 
 
 def rsync_f2f(source_file, target_file):
+    """
+    Convenience function to 'rsync' a source
+    file to a target location (copy file
+    and change name) in a 'run' block of
+    a Snakemake rule.
+    """
     abs_source = pathlib.Path(source_file).resolve(strict=True)
     abs_target = pathlib.Path(target_file).resolve(strict=False)
     abs_target.parent.mkdir(parents=True, exist_ok=True)
-    rsync(str(abs_source), str(abs_target))
+    _rsync(str(abs_source), str(abs_target))
     return
 
 
-def rsync(source, target):
-
+def _rsync(source, target):
+    """
+    Abstract function realizing 'rsync' calls;
+    do not call this function, use 'rsync_f2f'
+    or 'rsync_f2d'.
+    """
     cmd = ["rsync", "--quiet", "--checksum", source, target]
     try:
         _ = subprocess.check_call(cmd, shell=False)
     except subprocess.CalledProcessError as spe:
-        logerr("rsync from {source} to {target} failed")
+        logerr(f"rsync from '{source}' to '{target}' failed")
         raise spe
     return
