@@ -37,16 +37,28 @@ Add info here
 1. run `./init.py --dev-only` (requires Python3)
     - this will skip creating the workflow working directory and subfolders
 2. activate the created Conda environment: `conda activate ./dev_env`
-3. write your code
-4. run the recommended code checks with the following tools:
+3. write your code, and add tests to `workflow/snaketests.smk`
+4. run tests:
+    - note that some tests may be expected to fail and may produce error messages
+    - if Snakemake reports a successful pipeline run, then all tests have succeeded
+      irrespective of log messages that look like errors
+```bash
+# test w/o reference container
+snakemake --cores 1 \
+    --config devmode=True \
+    --directory wd/ \
+    --snakefile workflow/snaketests.smk
+```
+    
+5. run the recommended code checks with the following tools:
     - Python scripts:
         - linting: `pylint <script.py>`
         - organize imports: `isort <script.py>`
         - code formatting: `black [--check] .`
     - Snakemake files:
-        - linting: `snakemake --lint`
+        - linting: `snakemake --config devmode=True --lint`
         - code formatting: `snakefmt [--check] .`
-5. after checking and standardizing your code, commit your changes:
+6. after checking and standardizing your code, commit and push your changes
 
 # Citation
 
