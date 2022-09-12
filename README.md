@@ -42,11 +42,25 @@ Add info here
     - note that some tests may be expected to fail and may produce error messages
     - if Snakemake reports a successful pipeline run, then all tests have succeeded
       irrespective of log messages that look like errors
+    - if you want to test the functions loading reference data from reference containers,
+      you need to build the test container `test_v0.sif` and copy it into the
+      working directory for the workflow test run. Refer to the
+      [reference container repository](https://github.com/core-unit-bioinformatics/reference-container)
+      for build instructions.
 ```bash
 # test w/o reference container
 snakemake --cores 1 \
     --config devmode=True \
     --directory wd/ \
+    --snakefile workflow/snaketests.smk
+
+# test w/ reference container
+# the container 'test_v0.sif' must exist
+# in the working directory: 'wd/test_v0.sif'
+snakemake --cores 1 \
+    --config devmode=True \
+    --directory wd/ \
+    --configfiles config/testing/params_refcon.yaml \
     --snakefile workflow/snaketests.smk
 ```
     
