@@ -15,3 +15,18 @@ disable=[
 
 [tool.isort]
 profile = "black"
+
+[cubi.project]
+pid = "undefined"
+name = "undefined"
+date = 2000-01-01
+
+[cubi.workflow]
+pid = "undefined"
+name = "undefined"
+version = "prototype"
+
+[cubi.workflow.template]
+pid = "undefined"
+system = "snakemake"
+version = "prototype"
