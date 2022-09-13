@@ -1,7 +1,7 @@
 import datetime
 import getpass
 import pathlib
-import subprocess
+import subprocess as sp
 import sys
 
 
@@ -97,3 +97,60 @@ def _rsync(source, target):
         logerr(f"rsync from '{source}' to '{target}' failed")
         raise spe
     return
+
+
+def _collect_git_remotes(): 
+    """
+    Function to gather all available git remotes and then
+    extracting the url of the repository based on the priority order
+    1. github; 2. git.hhu; 3. origin.
+    """
+    wd = WORKDIR
+
+    remotes = sp.check_output(["git remote -v"], shell=True, cwd=wd).decode().split()
+
+    Github_remote = 'github'
+    GitLab_remote = 'git.hhu'
+    origin_remote = 'origin'
+
+    try:
+        remotes_out = [git_remote for git_remote in remotes if Github_remote in git_remote][0]
+    except IndexError:
+        try:
+            remotes_out = [git_remote for git_remote in remotes if GitLab_remote in git_remote][0]
+        except IndexError:
+            try:
+                origin = remotes.index(origin_remote)
+                remotes_out = remotes[origin+1]
+            except ValueError:
+                err_msg = f"Error message:\n"
+                err_msg += f"This is not a git repository\n"
+                remotes_out = err_msg
+                sys.stderr.write(err_msg)
+    return remotes_out
+
+def _collect_git_labels():
+
+    wd = WORKDIR
+    
+    collect_infos = [
+        "rev-parse --short HEAD",
+        "rev-parse --abbrev-ref HEAD",
+    ]
+    info_labels = ["git_hash", "git_branch"]
+
+    git_labels = []
+    for option, label in zip(collect_infos, info_labels):
+        call = "git " + option
+        try:
+            out = sp.check_output(call, shell=True, cwd=wd).decode().strip()
+            git_labels.append((label, out))
+        except sp.CalledProcessError as err:
+            err_msg = f"\nERROR --- could not collect git info using call: {call}\n"
+            err_msg += f"Error message: {str(err)}\n"
+            err_msg += f"Call executed in path: {wd}\n"
+            err_msg += f"Proceeding with container building...\n"
+            sys.stderr.write(err_msg)
+            git_labels.append((label, "unset-error"))
+    git_labels.append(tuple(["git_url",_collect_git_remotes()]))
+    return git_labels

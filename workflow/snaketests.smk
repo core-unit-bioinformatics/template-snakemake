@@ -118,6 +118,18 @@ rule test_rsync_fail:
 
 
 
+rule test_git_labels:
+    output:
+        DIR_PROC.joinpath("testing", "test_git_labels.txt"),
+    run:
+        import json
+        git_info = _collect_git_labels()
+        with open(output[0], "w") as git_dump:
+            json.dump(git_info, git_dump)
+        # END OF RUN BLOCK
+
+
+
 if USE_REFERENCE_CONTAINER:
     CONTAINER_TEST_FILES = [
         DIR_GLOBAL_REF.joinpath("genome.fasta.fai"),
@@ -136,6 +148,7 @@ rule aggregate_tests:
         rules.test_rsync_f2f.output,
         rules.test_rsync_f2d.output,
         rules.test_rsync_fail.output,
+        rules.test_git_labels.output,
         CONTAINER_TEST_FILES,
     output:
         DIR_RES.joinpath("testing", "all-ok.txt"),
