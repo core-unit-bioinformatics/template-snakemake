@@ -120,7 +120,7 @@ rule test_rsync_fail:
 
 if USE_REFERENCE_CONTAINER:
     CONTAINER_TEST_FILES = [
-        DIR_GLOBAL_REF.joinpath("genome.stats.txt"),
+        DIR_GLOBAL_REF.joinpath("genome.fasta.fai"),
         "cache/refcon/refcon_manifests.cache",
     ]
 else:
