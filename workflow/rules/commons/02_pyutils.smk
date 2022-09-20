@@ -99,72 +99,119 @@ def _rsync(source, target):
     return
 
 
-def _collect_git_remotes(): 
-    """
-    Function to gather all available git remotes and then
-    extracting the url of the repository based on the priority order
-    1. github; 2. git.hhu; 3. origin.
-    """
-    wd = DIR_SNAKEFILE
-    try:
-        remotes = subprocess.check_output("git remote -v", shell=True, cwd=wd).decode().split()
-    except:
-            warning_msg = f"Warning:\n"
-            warning_msg += f"It seems git is not an executable in your PATH\n"
-            sys.stderr.write(warning_msg)
-            pass
-
-
-    Github_remote = 'github'
-    GitLab_remote = 'git.hhu'
-    origin_remote = 'origin'
+def _check_git_available():
 
     try:
-        remotes_out = [git_remote for git_remote in remotes if Github_remote in git_remote][0]
-    except IndexError:
-        try:
-            remotes_out = [git_remote for git_remote in remotes if GitLab_remote in git_remote][0]
-        except IndexError:
+        git_version = subprocess.check_output("git --version", shell=True)
+        git_version = git_version.decode().strip()
+        if VERBOSE:
+            logerr(f"DEBUG: git version {git_version} detectedin $PATH")
+        git_in_path = True
+    except subprocess.CalledProcessError:
+        git_in_path = False
+    return git_in_path
+
+
+def _extract_git_remote():
+    """
+    Function to extract the (most likely) primary
+    git remote name and URL (second part, split at ':').
+    Applies following priority filter:
+
+    1. github - CUBI convention
+    2. githhu - CUBI convention
+    3. origin - git default
+    4. <other> (first in list, issues warning if VERBOSE is set)
+
+    Returns:
+        tuple of str: remote name, URL
+
+    Raises:
+        subprocess.CalledProcessError: if git executable
+        is not available in PATH
+        ValueError: if no git remotes are configured for the repo
+    """
+
+    try:
+        remotes = subprocess.check_output(
+            "git remote -v", shell=True, cwd=DIR_SNAKEFILE
+        )
+        remotes = remotes.decode().strip().split("\n")
+        remotes = [tuple(r.split()) for r in remotes]
+    except subprocess.CalledProcessError:
+        error_msg = "ERROR:\n"
+        error_msg += "Most likely, 'git' is not available in your $PATH\n."
+        error_msg += (
+            f"Alternatively, this folder {DIR_SNAKEFILE} is not a git repository."
+        )
+        logerr(warning_msg)
+        raise
+
+    if not remotes:
+        raise ValueError(f"No git remotes configured for repository at {DIR_SNAKEFILE}")
+
+    remote_priorities = {"github": 0, "githhu": 1, "origin": 2}
+
+    # sort list of remotes by priority,
+    # assign high rank / low priority to unexpected remotes
+    remotes = sorted(
+        [(remote_priorities.get(r[0], 10), r) for r in remotes if r[-1] == "(fetch)"]
+    )
+    # drop priority value
+    remote_info = remotes[0][1]
+    remote_name, remote_url, _ = remote_info
+    remote_url = remote_url.split(":")[-1]
+
+    if remote_name not in remote_priorities and VERBOSE:
+        warning_msg = f"WARNING: unexpected git remote (name: {remote_name}) assumed to be primary."
+
+    return remote_name, remote_url
+
+
+def collect_git_labels():
+    """
+    Collect some basic information about the
+    checked out git repository of the workflow
+    """
+
+    label_collection = {
+        "git_remote": "unset-error",
+        "git_url": "unset-error",
+        "git_short": "unset-error",
+        "git_long": "unset-error",
+        "git_branch": "unset-error",
+    }
+
+    git_in_path = _check_git_available()
+
+    if git_in_path:
+
+        primary_remote, remote_url = _extract_git_remote()
+        label_collection["git_remote"] = primary_remote
+        label_collection["git_url"] = remote_url
+
+        collect_options = [
+            "rev-parse --short HEAD",
+            "rev-parse HEAD",
+            "rev-parse --abbrev-ref HEAD",
+        ]
+        info_labels = ["git_short", "git_long", "git_branch"]
+
+        for option, label in zip(collect_options, info_labels):
+            call = "git " + option
             try:
-                origin = remotes.index(origin_remote)
-                remotes_out = remotes[origin+1]
-            except ValueError:
-                err_msg = f"Error message:\n"
-                err_msg += f"No repository could be found\n"
-                remotes_out = err_msg
-                sys.stderr.write(err_msg)
-    return remotes_out
+                # Important here to use DIR_SNAKEFILE (= the git repo location)
+                # and not WORK_DIR, which would be the pipeline working directory.
+                out = subprocess.check_output(call, shell=True, cwd=DIR_SNAKEFILE)
+                out = out.decode().strip()
+                assert label in label_collection
+                label_collection[label] = out
+            except subprocess.CalledProcessError as err:
+                err_msg = f"\nERROR --- could not collect git info using call: {call}\n"
+                err_msg += f"Error message: {str(err)}\n"
+                err_msg += f"Call executed in path: {DIR_SNAKEFILE}\n"
+                logerr(err_msg)
 
-def _collect_git_labels():
+    git_labels = [(k, v) for k, v in label_collection.items()]
 
-    try:
-        subprocess.check_output("git remote -v", shell=True)
-    except:
-            warning_msg = f"Warning:\n"
-            warning_msg += f"It seems git is not an executable in your PATH\n"
-            sys.stderr.write(warning_msg)
-            pass
-
-    wd = DIR_SNAKEFILE
-
-    collect_infos = [
-        "rev-parse --short HEAD",
-        "rev-parse --abbrev-ref HEAD",
-    ]
-    info_labels = ["git_hash", "git_branch"]
-
-    git_labels = []
-    for option, label in zip(collect_infos, info_labels):
-        call = "git " + option
-        try:
-            out = subprocess.check_output(call, shell=True, cwd=wd).decode().strip()
-            git_labels.append((label, out))
-        except subprocess.CalledProcessError as err:
-            err_msg = f"\nERROR --- could not collect git info using call: {call}\n"
-            err_msg += f"Error message: {str(err)}\n"
-            err_msg += f"Call executed in path: {wd}\n"
-            err_msg += f"Proceeding with container building...\n"
-            sys.stderr.write(err_msg)
-            git_labels.append((label, "unset-error"))
-    git_labels.append(tuple(["git_url",_collect_git_remotes()]))
     return git_labels

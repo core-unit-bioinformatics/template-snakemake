@@ -1,5 +1,6 @@
 include: "rules/00_modules.smk"
 
+
 rule run_tests:
     input:
         RUN_CONFIG_RELPATH,
@@ -120,12 +121,12 @@ rule test_rsync_fail:
 
 rule test_git_labels:
     output:
-        DIR_PROC.joinpath("testing", "test_git_labels.txt"),
+        DIR_PROC.joinpath("testing", "git-labels-ok.txt"),
     run:
-        import json
-        git_info = _collect_git_labels()
-        with open(output[0], "w") as git_dump:
-            json.dump(git_info, git_dump)
+        git_labels = collect_git_labels()
+        with open(output[0], "w") as labels:
+            for label, value in git_labels:
+                _ = labels.write(f"{label}\t{value}\n")
         # END OF RUN BLOCK
 
 
