@@ -10,6 +10,7 @@ rule dump_config:
         import yaml
 
         runinfo = {"_timestamp": get_timestamp(), "_username": get_username()}
+        runinfo.update(_collect_git_labels())
         runinfo.update(config)
         with open(RUN_CONFIG_RELPATH, "w", encoding="ascii") as cfg_dump:
             yaml.dump(runinfo, cfg_dump, allow_unicode=False, encoding="ascii")
