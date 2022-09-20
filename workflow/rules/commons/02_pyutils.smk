@@ -1,7 +1,7 @@
 import datetime
 import getpass
 import pathlib
-import subprocess as sp
+import subprocess
 import sys
 
 
@@ -105,9 +105,15 @@ def _collect_git_remotes():
     extracting the url of the repository based on the priority order
     1. github; 2. git.hhu; 3. origin.
     """
-    wd = WORKDIR
+    wd = DIR_SNAKEFILE
+    try:
+        remotes = subprocess.check_output("git remote -v", shell=True, cwd=wd).decode().split()
+    except:
+            warning_msg = f"Warning:\n"
+            warning_msg += f"It seems git is not an executable in your PATH\n"
+            sys.stderr.write(warning_msg)
+            pass
 
-    remotes = sp.check_output(["git remote -v"], shell=True, cwd=wd).decode().split()
 
     Github_remote = 'github'
     GitLab_remote = 'git.hhu'
@@ -124,15 +130,23 @@ def _collect_git_remotes():
                 remotes_out = remotes[origin+1]
             except ValueError:
                 err_msg = f"Error message:\n"
-                err_msg += f"This is not a git repository\n"
+                err_msg += f"No repository could be found\n"
                 remotes_out = err_msg
                 sys.stderr.write(err_msg)
     return remotes_out
 
 def _collect_git_labels():
 
-    wd = WORKDIR
-    
+    try:
+        subprocess.check_output("git remote -v", shell=True)
+    except:
+            warning_msg = f"Warning:\n"
+            warning_msg += f"It seems git is not an executable in your PATH\n"
+            sys.stderr.write(warning_msg)
+            pass
+
+    wd = DIR_SNAKEFILE
+
     collect_infos = [
         "rev-parse --short HEAD",
         "rev-parse --abbrev-ref HEAD",
@@ -143,9 +157,9 @@ def _collect_git_labels():
     for option, label in zip(collect_infos, info_labels):
         call = "git " + option
         try:
-            out = sp.check_output(call, shell=True, cwd=wd).decode().strip()
+            out = subprocess.check_output(call, shell=True, cwd=wd).decode().strip()
             git_labels.append((label, out))
-        except sp.CalledProcessError as err:
+        except subprocess.CalledProcessError as err:
             err_msg = f"\nERROR --- could not collect git info using call: {call}\n"
             err_msg += f"Error message: {str(err)}\n"
             err_msg += f"Call executed in path: {wd}\n"
