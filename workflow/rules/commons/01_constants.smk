@@ -1,4 +1,8 @@
 import pathlib
+import sys
+import enum
+
+WAIT_ACC_LOCK_SECS = config.get("wait_acc_lock_secs", 60)
 
 CPU_LOW = config.get("cpu_low", 2)
 assert isinstance(CPU_LOW, int)
@@ -9,6 +13,11 @@ CPU_HIGH = config.get("cpu_high", 6)
 assert isinstance(CPU_HIGH, int)
 CPU_MAX = config.get("cpu_max", 8)
 assert isinstance(CPU_MAX, int)
+
+# special case: the --dry-run option is not accessible
+# as, e.g., an attribute of the workflow object and has
+# to be extracted later (see 09_staging.smk)
+DRYRUN = None
 
 # stored if needed for logging purposes
 VERBOSE = workflow.verbose
@@ -44,6 +53,10 @@ WORKDIR = DIR_WORKING
 # for development purposes
 RUN_IN_DEV_MODE = config.get("devmode", False)
 assert isinstance(RUN_IN_DEV_MODE, bool)
+
+# should the accounting files be reset?
+RESET_ACCOUNTING = config.get("resetacc", False)
+assert isinstance(RESET_ACCOUNTING, bool)
 
 # if the workflow is executed in development mode,
 # the paths underneath the working directory
@@ -87,8 +100,12 @@ WD_RELPATH_LOCAL_REF = WD_ABSPATH_LOCAL_REF.relative_to(DIR_WORKING)
 DIR_LOCAL_REF = WD_RELPATH_LOCAL_REF
 
 # fix name of run config dump file and location
-RUN_CONFIG_RELPATH = DIR_RES / pathlib.Path("run_config.yaml")
-RUN_CONFIG_ABSPATH = DIR_WORKING / RUN_CONFIG_RELPATH
+RUN_CONFIG_RELPATH = DIR_RES.joinpath("run_config.yaml")
+RUN_CONFIG_ABSPATH = RUN_CONFIG_RELPATH.resolve()
+
+# fix name of manifest file and location
+MANIFEST_RELPATH = DIR_RES.joinpath("manifest.tsv")
+MANIFEST_ABSPATH = MANIFEST_RELPATH.resolve()
 
 # specific constants for the use of reference containers
 # as part of the pipeline
@@ -113,3 +130,64 @@ if USE_REFERENCE_CONTAINER:
 else:
     DIR_REFERENCE_CONTAINER = pathlib.Path("/")
 DIR_REFCON = DIR_REFERENCE_CONTAINER
+
+
+ACCOUNTING_FILES = {
+    "inputs": DIR_PROC.joinpath(".accounting", "inputs.listing"),
+    "references": DIR_PROC.joinpath(".accounting", "references.listing"),
+    "results": DIR_PROC.joinpath(".accounting", "results.listing"),
+}
+
+
+class TimeUnit(enum.Enum):
+    HOUR = 1
+    hour = 1
+    hours = 1
+    hrs = 1
+    h = 1
+    MINUTE = 2
+    minute = 2
+    minutes = 2
+    min = 2
+    m = 2
+    SECOND = 3
+    second = 3
+    seconds = 3
+    sec = 3
+    s = 3
+
+
+class MemoryUnit(enum.Enum):
+    BYTE = 0
+    byte = 0
+    bytes = 0
+    b = 0
+    B = 0
+    KiB = 1
+    kib = 1
+    kb = 1
+    KB = 1
+    k = 1
+    K = 1
+    kibibyte = 1
+    MiB = 2
+    mib = 2
+    mb = 2
+    MB = 2
+    m = 2
+    M = 2
+    mebibyte = 2
+    GiB = 3
+    gib = 3
+    gb = 3
+    GB = 3
+    g = 3
+    G = 3
+    gibibyte = 3
+    TiB = 4
+    tib = 4
+    tb = 4
+    TB = 4
+    t = 4
+    T = 4
+    tebibyte = 4
