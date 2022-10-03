@@ -98,13 +98,33 @@ rule create_manifest:
         import collections
         import pandas
 
+        if not all([af.is_file() for af in ACCOUNTING_FILES.values()]):
+            err_msg = "Accounting files have not been created yet, cannot create workflow manifest.\n"
+            err_msg += "Please rerun the workflow twice in dry run mode:\n"
+            err_msg += "snakemake --dry-run (or: -n) [...other options...]"
+            logerr(err_msg)
+            raise RuntimeError(
+                "Cannot proceed with workflow execution w/o accouting files."
+            )
+
+        if len(input.manifest_files) == 0:
+            warn_msg = "No files recorded for inclusion in workflow manifest.\n"
+            warn_msg += "Are you sure you did not forget annotating rules with:\n"
+            warn_msg += "commons/02_pyutils.smk::register_input()\n"
+            warn_msg += "commons/02_pyutils.smk::register_result()\n"
+            logerr(warn_msg)
+
         records = collections.defaultdict(dict)
         for line in fileinput.input(ACCOUNTING_FILES.values(), mode="r"):
             path_id, path_record = process_accounting_record(line)
             records[path_id].update(path_record)
 
         df = pandas.DataFrame.from_records(list(records.values()))
-        df.sort_values(["file_category", "file_name"], ascending=True)
+        if df.empty:
+            logerr("Manifest DataFrame is empty - aborting")
+            raise RuntimeError("Manifest DataFrame is empty")
+
+        df.sort_values(["file_category", "file_name"], ascending=True, inplace=True)
         reordered_columns = [
             "file_name",
             "file_category",

@@ -9,7 +9,6 @@ rule run_all:
         # add output of final rule(s) here
         # to trigger complete run
         [],
-        
 
 
 onsuccess:
