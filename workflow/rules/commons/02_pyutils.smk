@@ -244,7 +244,9 @@ def load_accounting_information(wildcards):
                 logerr(f"Size of accounting file list: {len(created_files)}")
         except FileNotFoundError:
             if VERBOSE:
-                logerr(f"Accounting file does not exist (yet): {account_file}")
+                warn_msg = f"Accounting file does not exist (yet): {account_file}\n"
+                warn_msg += "Please RERUN the workflow in DRY RUN MODE to create the file accounts!"
+                logerr(warn_msg)
     return sorted(created_files)
 
 
@@ -484,16 +486,35 @@ def collect_git_labels():
 # =======================================================
 
 
+def trigger_refcon_manifest_caching(wildcards):
+    """
+    This function merely triggers the checkpoint
+    to merge all reference containers caches into
+    one. This checkpoint is needed to get a
+    start-to-end run, otherwise "refcon_find_container"
+    would produce an error.
+    """
+    refcon_manifest_cache = str(
+        checkpoints.refcon_cache_manifests.get(**wildcards).output.cache
+    )
+    expected_path = DIR_PROC.joinpath(".cache", "refcon", "refcon_manifests.cache")
+    # following assert safeguard against future changes
+    assert pathlib.Path(refcon_manifest_cache).resolve() == expected_path.resolve()
+    return refcon_manifest_cache
+
+
 def refcon_find_container(manifest_cache, ref_filename):
 
     if not pathlib.Path(manifest_cache).is_file():
         if DRYRUN:
             return ""
         else:
-            raise FileNotFoundError(
-                f"Reference container manifest cache does not exist: {manifest_cache}"
-            )
-
+            if VERBOSE:
+                warn_msg = "Warning: reference container manifest cache "
+                warn_msg += "does not exist yet. Returning empty reference "
+                warn_msg += "container path."
+                logerr(warn_msg)
+            return ""
 
     manifests = pandas.read_csv(manifest_cache, sep="\t", header=0)
 

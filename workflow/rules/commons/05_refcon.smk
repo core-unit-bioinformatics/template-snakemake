@@ -14,7 +14,6 @@ if USE_REFERENCE_CONTAINER:
         shell:
             "{input.sif} manifest > {output.manifest}"
 
-
     rule refcon_run_get_file:
         """
         Snakemake interacts with Singularity containers using "exec",
@@ -26,7 +25,7 @@ if USE_REFERENCE_CONTAINER:
         (i.e., treat them like a regular file)
         """
         input:
-            cache=DIR_PROC.joinpath(".cache", "refcon", "refcon_manifests.cache"),
+            cache=trigger_refcon_manifest_caching,
         output:
             DIR_GLOBAL_REF.joinpath("{filename}"),
         envmodules:
@@ -39,8 +38,7 @@ if USE_REFERENCE_CONTAINER:
         shell:
             "{params.refcon_path} get {wildcards.filename} {output}"
 
-
-    rule refcon_cache_manifests:
+    checkpoint refcon_cache_manifests:
         input:
             manifests=expand(
                 DIR_PROC.joinpath(".cache", "refcon", "{refcon_name}.manifest"),
