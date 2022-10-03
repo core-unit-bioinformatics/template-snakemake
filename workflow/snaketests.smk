@@ -31,6 +31,7 @@ rule create_test_file:
         # END OF RUN BLOCK
 
 
+
 rule test_log_functions:
     """
     Test pyutil logging functions
@@ -51,6 +52,7 @@ rule test_log_functions:
         # END OF RUN BLOCK
 
 
+
 rule test_find_script_success:
     input:
         expand(rules.test_log_functions.output, logtype=["err", "out"]),
@@ -67,6 +69,7 @@ rule test_find_script_success:
         with open(output[0], "w") as testfile:
             testfile.write("find_script success test ok")
         # END OF RUN BLOCK
+
 
 
 rule test_find_script_fail:
@@ -88,6 +91,7 @@ rule test_find_script_fail:
         # END OF RUN BLOCK
 
 
+
 rule test_rsync_f2d:
     input:
         rules.create_test_file.output,
@@ -106,6 +110,7 @@ rule test_rsync_f2d:
         # END OF RUN BLOCK
 
 
+
 rule test_rsync_f2f:
     input:
         rules.create_test_file.output,
@@ -116,6 +121,7 @@ rule test_rsync_f2f:
     run:
         rsync_f2f(input[0], output[0])
         # END OF RUN BLOCK
+
 
 
 rule test_rsync_fail:
@@ -138,6 +144,7 @@ rule test_rsync_fail:
         # END OF RUN BLOCK
 
 
+
 rule test_git_labels:
     input:
         rules.test_rsync_f2d.output,
@@ -155,15 +162,18 @@ rule test_git_labels:
         # END OF RUN BLOCK
 
 
+
 if USE_REFERENCE_CONTAINER:
     CONTAINER_TEST_FILES = [
         DIR_GLOBAL_REF.joinpath("genome.fasta.fai"),
+        DIR_GLOBAL_REF.joinpath("exclusions.bed"),
+        DIR_GLOBAL_REF.joinpath("hg38_full.fasta.fai"),
         DIR_PROC.joinpath(".cache", "refcon", "refcon_manifests.cache"),
     ]
-    REGISTER_REFERENCE_FILE = CONTAINER_TEST_FILES[0]
+    REGISTER_REFERENCE_FILES = CONTAINER_TEST_FILES[:3]
 else:
     CONTAINER_TEST_FILES = []
-    REGISTER_REFERENCE_FILE = []
+    REGISTER_REFERENCE_FILES = []
 
 
 rule trigger_tests:
@@ -174,7 +184,7 @@ rule trigger_tests:
         DIR_RES.joinpath("testing", "all-ok.txt"),
     params:
         acc_out=lambda wildcards, output: register_result(output),
-        acc_ref=lambda wildcards, input: register_reference(REGISTER_REFERENCE_FILE),
+        acc_ref=lambda wildcards, input: register_reference(REGISTER_REFERENCE_FILES),
     run:
         with open(output[0], "w") as testfile:
             testfile.write("ok")
