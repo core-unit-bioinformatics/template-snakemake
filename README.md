@@ -12,17 +12,67 @@ In essence, the following should suffice to get started:
 3. Conda (or mamba): for automatic setup of all software dependencies
     - Note that you can run the workflow w/o Conda, but then all tools listed under `workflow/envs/*.yaml` [not `dev_env.yaml`] need to be in your `$PATH`.
 
-For a detailed setup guide, please refer to [the workflow documentation](docs/README.md).
-
-**Internal (template) remark**: adapt the above if the workflow deployment has additional requirements (e.g., Singularity).
+Internal (template) remark: adapt the above if the workflow deployment has additional requirements (e.g., Singularity).
 
 ## Required input data
 
-Add info here - be concise, and provide more details in [the workflow documentation](docs/README.md).
+Add info here
 
 ## Produced output data
 
-Add info here - be concise, and provide more details in [the workflow documentation](docs/README.md).
+Add info here
+
+# Deploying the workflow on execution hardware
+
+1. run `./init.py` (requires Python3)
+    - this will create an "execution" Conda environment,
+    and a Snakemake working directory plus standard subfolders
+    one level above the repository location
+2. activate the created Conda environment: `cd .. && conda activate ./exec_env`
+3. prepare profile and configuration files as necessary, and run Snakemake
+
+
+# Developing the workflow locally
+
+1. run `./init.py --dev-only` (requires Python3)
+    - this will skip creating the workflow working directory and subfolders
+2. activate the created Conda environment: `conda activate ./dev_env`
+3. write your code, and add tests to `workflow/snaketests.smk`
+4. run tests:
+    - note that some tests may be expected to fail and may produce error messages
+    - if Snakemake reports a successful pipeline run, then all tests have succeeded
+      irrespective of log messages that look like errors
+    - if you want to test the functions loading reference data from reference containers,
+      you need to build the test container `test_v0.sif` and copy it into the
+      working directory for the workflow test run. Refer to the
+      [reference container repository](https://github.com/core-unit-bioinformatics/reference-container)
+      for build instructions.
+```bash
+# test w/o reference container
+snakemake --cores 1 \
+    --config devmode=True \
+    --directory wd/ \
+    --snakefile workflow/snaketests.smk
+
+# test w/ reference container
+# the container 'test_v0.sif' must exist
+# in the working directory: 'wd/test_v0.sif'
+snakemake --cores 1 \
+    --config devmode=True \
+    --directory wd/ \
+    --configfiles config/testing/params_refcon.yaml \
+    --snakefile workflow/snaketests.smk
+```
+    
+5. run the recommended code checks with the following tools:
+    - Python scripts:
+        - linting: `pylint <script.py>`
+        - organize imports: `isort <script.py>`
+        - code formatting: `black [--check] .`
+    - Snakemake files:
+        - linting: `snakemake --config devmode=True --lint`
+        - code formatting: `snakefmt [--check] .`
+6. after checking and standardizing your code, commit and push your changes
 
 # Citation
 

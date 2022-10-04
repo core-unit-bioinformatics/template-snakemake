@@ -1,7 +1,7 @@
  
-reference_container_store: "."
+reference_container_store: "../test_folder/"
 reference_container_names: 
-  - test_v1
+  - test_v0
 use_reference_container: True
 
 
