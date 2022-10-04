@@ -1,9 +1,13 @@
+include: "rules/commons/00_commons.smk"
 include: "rules/00_modules.smk"
 
 
 rule run_all:
     input:
         RUN_CONFIG_RELPATH,
+        MANIFEST_RELPATH,
+        # add output of final rule(s) here
+        # to trigger complete run
         [],
 
 

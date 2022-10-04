@@ -3,7 +3,8 @@ dependencies:
   - Python=3.9.*
   - pip
   - mamba=0.25.0
-  - snakemake=7.12.0
+  - snakemake=7.14.0
+  - portalocker=2.5.1
   - pandas=1.4.3
   - pytables=3.7.0
   - hdf5=1.12.1

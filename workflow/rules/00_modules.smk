@@ -1,12 +1,6 @@
-# some constants built from the Snakemake
-# command line arguments
-include: "commons/01_constants.smk"
-# Module containing generic
-# Python utility functions
-include: "commons/02_pyutils.smk"
-# Module containing generic
-# Snakemake utility rules, e.g., dump_config
-include: "commons/03_smkutils.smk"
-# Module containing
-# reference container location information
-include: "commons/05_refcon.smk"
+"""
+Use this module to list all includes
+required for your pipeline - do not
+add your pipeline-specific modules
+to "commons/00_commons.smk"
+"""

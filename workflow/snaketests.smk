@@ -1,9 +1,11 @@
+include: "rules/commons/00_commons.smk"
 include: "rules/00_modules.smk"
 
 
 rule run_tests:
     input:
         RUN_CONFIG_RELPATH,
+        MANIFEST_RELPATH,
         DIR_RES.joinpath("testing", "all-ok.txt"),
 
 
@@ -15,6 +17,8 @@ rule create_test_file:
     """
     output:
         DIR_PROC.joinpath("testing", "ts-ok_user-ok.txt"),
+    params:
+        acc_in=lambda wildcards, output: register_input(output, allow_non_existing=True),
     run:
         timestamp = get_timestamp()
         user_id = get_username()
@@ -22,7 +26,8 @@ rule create_test_file:
         content += f"get_username: {user_id}\n"
         content += f"get_timestamp: {timestamp}\n"
         with open(output[0], "w") as testfile:
-            testfile.write(content)
+            _ = testfile.write(content)
+            _ = testfile.write("Creating test input file succeeded")
         # END OF RUN BLOCK
 
 
@@ -32,21 +37,31 @@ rule test_log_functions:
     Test pyutil logging functions
     """
     output:
-        DIR_PROC.joinpath("testing", "log-ok.txt"),
+        DIR_PROC.joinpath("testing", "log-{logtype}-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
     run:
-        logout("Test log message to STDOUT")
-        logerr("Test log message to STDERR")
+        if wildcards.logtype == "out":
+            logout("Test log message to STDOUT")
+        elif wildcards.logtype == "err":
+            logerr("Test log message to STDERR")
+        else:
+            raise ValueError(f"Unknown log type: {wildcards.logtype}")
         with open(output[0], "w") as testfile:
-            testfile.write("Log test ok")
+            testfile.write(f"Log test {wildcards.logtype} ok")
         # END OF RUN BLOCK
 
 
 
 rule test_find_script_success:
+    input:
+        expand(rules.test_log_functions.output, logtype=["err", "out"]),
+        rules.create_test_file.output,
     output:
         DIR_PROC.joinpath("testing", "success-find-script-ok.txt"),
     params:
         script=find_script("test"),
+        acc_out=lambda wildcards, output: register_result(output),
     run:
         # the following should never raise,
         # i.e. script_find() would fail before
@@ -58,8 +73,12 @@ rule test_find_script_success:
 
 
 rule test_find_script_fail:
+    input:
+        rules.test_find_script_success.output,
     output:
         DIR_PROC.joinpath("testing", "fail-find-script-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
     run:
         try:
             script = find_script("non_existing")
@@ -76,8 +95,11 @@ rule test_find_script_fail:
 rule test_rsync_f2d:
     input:
         rules.create_test_file.output,
+        rules.test_find_script_fail.output,
     output:
         DIR_PROC.joinpath("testing", "subfolder", "ts-ok_user-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
     run:
         # first check that nobody changed the filename
         input_name = pathlib.Path(input[0]).name
@@ -94,6 +116,8 @@ rule test_rsync_f2f:
         rules.create_test_file.output,
     output:
         DIR_PROC.joinpath("testing", "rsync-f2f-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
     run:
         rsync_f2f(input[0], output[0])
         # END OF RUN BLOCK
@@ -107,6 +131,8 @@ rule test_rsync_fail:
         DIR_PROC.joinpath("testing", "rsync-fail-ok.txt"),
     message:
         "EXPECTED FAILURE: ignore following rsync error message"
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
     run:
         import subprocess
 
@@ -120,8 +146,14 @@ rule test_rsync_fail:
 
 
 rule test_git_labels:
+    input:
+        rules.test_rsync_f2d.output,
+        rules.test_rsync_f2f.output,
+        rules.test_rsync_fail.output,
     output:
-        DIR_PROC.joinpath("testing", "git-labels-ok.txt"),
+        out=DIR_PROC.joinpath("testing", "git-labels-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output.out),
     run:
         git_labels = collect_git_labels()
         with open(output[0], "w") as labels:
@@ -134,27 +166,26 @@ rule test_git_labels:
 if USE_REFERENCE_CONTAINER:
     CONTAINER_TEST_FILES = [
         DIR_GLOBAL_REF.joinpath("genome.fasta.fai"),
-        "cache/refcon/refcon_manifests.cache",
+        DIR_GLOBAL_REF.joinpath("exclusions.bed"),
+        DIR_GLOBAL_REF.joinpath("hg38_full.fasta.fai"),
+        DIR_PROC.joinpath(".cache", "refcon", "refcon_manifests.cache"),
     ]
+    REGISTER_REFERENCE_FILES = CONTAINER_TEST_FILES[:3]
 else:
     CONTAINER_TEST_FILES = []
+    REGISTER_REFERENCE_FILES = []
 
 
-rule aggregate_tests:
+rule trigger_tests:
     input:
-        rules.create_test_file.output,
-        rules.test_log_functions.output,
-        rules.test_find_script_success.output,
-        rules.test_find_script_fail.output,
-        rules.test_rsync_f2f.output,
-        rules.test_rsync_f2d.output,
-        rules.test_rsync_fail.output,
         rules.test_git_labels.output,
         CONTAINER_TEST_FILES,
     output:
         DIR_RES.joinpath("testing", "all-ok.txt"),
+    params:
+        acc_out=lambda wildcards, output: register_result(output),
+        acc_ref=lambda wildcards, input: register_reference(REGISTER_REFERENCE_FILES),
     run:
         with open(output[0], "w") as testfile:
             testfile.write("ok")
         # END OF RUN BLOCK
-
