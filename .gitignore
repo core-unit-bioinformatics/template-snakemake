@@ -208,3 +208,9 @@ dev_env/
 # Ignore default working directory in case it was accidentally created
 # in the Snakemake repo folder
 wd/
+
+# Ignore backup folders or file copies that may be created
+# in the repo tree
+backup/
+.backup/
+*.bak
