@@ -31,12 +31,6 @@ def logout(msg):
     return
 
 
-def get_timestamp():
-    # format: ISO 8601
-    ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    return ts
-
-
 def get_username():
     user = getpass.getuser()
     return user
