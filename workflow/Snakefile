@@ -1,14 +1,29 @@
 include: "rules/commons/00_commons.smk"
 include: "rules/00_modules.smk"
+include: "rules/99_aggregate.smk"
 
 
 rule run_all:
+    """ The WORKFLOW_OUTPUT
+    target is updated in the
+    99_aggregate.smk module.
+    """
     input:
         RUN_CONFIG_RELPATH,
         MANIFEST_RELPATH,
-        # add output of final rule(s) here
-        # to trigger complete run
-        [],
+        WORKFLOW_OUTPUT,
+
+
+rule run_all_no_manifest:
+    """ Rule added for the
+    unexpected case that no
+    manifest file shall be
+    created (e.g., testing)
+    Part of gh#15 fix.
+    """
+    input:
+        RUN_CONFIG_RELPATH,
+        WORKFLOW_OUTPUT,
 
 
 onsuccess:
