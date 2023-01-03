@@ -98,21 +98,64 @@ rule create_manifest:
         import collections
         import pandas
 
-        if not all([af.is_file() for af in ACCOUNTING_FILES.values()]):
-            err_msg = "Accounting files have not been created yet, cannot create workflow manifest.\n"
-            err_msg += "Please rerun the workflow twice in dry run mode:\n"
-            err_msg += "snakemake --dry-run (or: -n) [...other options...]"
+        # The following checks if accounting files are actually
+        # in use - it's possible to write a workflow w/o using
+        # reference files, and thus _not all_ of them have to
+        # exist / be used. Part of fix for gh#15.
+        process_accounting_files = {}
+        for accounting_file, file_path in ACCOUNTING_FILES.items():
+            if not file_path.is_file():
+                if VERBOSE:
+                    warn_msg = (
+                        f"Warning: accounting file of type '{account_file}' not in use."
+                    )
+                    logerr(warn_msg)
+                continue
+            process_accounting_files[accounting_file] = file_path
+
+        accounting_files_in_use = len(process_accounting_files)
+
+        if accounting_files_in_use == 0:
+            target_rule = "run_all_no_manifest"
+            if NAME_SNAKEFILE == "snaketests":
+                target_rule = "run_tests_no_manifest"
+
+            err_msg = "No accounting files marked as in use.\n"
+            err_msg += "This means one of three things:\n"
+            err_msg += "0) You forgot to trigger the manifest creation\n"
+            err_msg += "by running Snakemake in dry run mode twice\n"
+            err_msg += "before the actual pipeline run.\n"
+            err_msg += "1) Your workflow does not consume input, does not use\n"
+            err_msg += "any reference file(s) and also does not produce output.\n"
+            err_msg += "Really? Are you sure?\n"
+            err_msg += "2) You did not annotate the workflow rules with:\n"
+            err_msg += "commons/02_pyutils.smk::register_input()\n"
+            err_msg += "commons/02_pyutils.smk::register_result()\n"
+            err_msg += "commons/02_pyutils.smk::register_reference()\n"
+            err_msg += "Please rerun the workflow twice in dry run mode...\n\n"
+            err_msg += "snakemake --dry-run (or: -n) [...other options...]\n\n"
+            err_msg += "...after fixing that.\n\n"
+            err_msg += "However, if you are sure (!) that this is correct,\n"
+            err_msg += f"please target the rule >>> {target_rule} <<<\n"
+            err_msg += "to run the entire workflow w/o the manifest file.\n\n"
             logerr(err_msg)
             raise RuntimeError(
-                "Cannot proceed with workflow execution w/o accouting files."
+                "No accounts: cannot proceed with workflow execution w/o accouting files."
             )
 
         if len(input.manifest_files) == 0:
-            warn_msg = "No files recorded for inclusion in workflow manifest.\n"
-            warn_msg += "Are you sure you did not forget annotating rules with:\n"
-            warn_msg += "commons/02_pyutils.smk::register_input()\n"
-            warn_msg += "commons/02_pyutils.smk::register_result()\n"
-            logerr(warn_msg)
+            assert accounting_files_in_use > 0
+            # this combination of conditions can only
+            # indicate an error
+            err_msg = "No files collected to list in the MANIFEST, but\n"
+            err_msg += f"{accounting_files_in_use} accounting files are\n"
+            err_msg += "marked as in use.\n"
+            err_msg += "Please check that you properly annotated rules\n"
+            err_msg += "consuming input or reference files, and rules\n"
+            err_msg += "producing output with the respective 'register_'\n"
+            err_msg += "function from the commons/02_pyutils.smk module.\n\n"
+            logerr(err_msg)
+            raise RuntimeError("No manifest files collected, but accounts are in use.")
 
         records = collections.defaultdict(dict)
         for line in fileinput.input(ACCOUNTING_FILES.values(), mode="r"):
