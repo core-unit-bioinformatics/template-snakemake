@@ -55,6 +55,19 @@ WORKDIR = DIR_WORKING
 RUN_IN_DEV_MODE = config.get("devmode", False)
 assert isinstance(RUN_IN_DEV_MODE, bool)
 
+# if the name of the snakefile is "snaketests" and the
+# developer has not set the devmode option, print a hint
+# to help diagnose path resolution errors
+if NAME_SNAKEFILE == "snaketests" and not RUN_IN_DEV_MODE:
+    hint_msg = "\nDEV HINT:\n"
+    hint_msg += "You are executing the 'snaketests' pipeline,"
+    hint_msg += " but you did not set the config option:\n"
+    hint_msg += " '--config devmode=True'\n"
+    hint_msg += "This may lead to FileNotFoundErrors for the"
+    hint_msg += " subfolders expected to exist"
+    hint_msg += " (proc/, results/ and so on) in the working directory.\n\n"
+    sys.stderr.write(hint_msg)
+
 # should the accounting files be reset?
 RESET_ACCOUNTING = config.get("resetacc", False)
 assert isinstance(RESET_ACCOUNTING, bool)
