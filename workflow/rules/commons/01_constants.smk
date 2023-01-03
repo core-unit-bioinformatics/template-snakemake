@@ -36,6 +36,7 @@ ENV_MODULE_SINGULARITY = config.get("env_module_singularity", "Singularity")
 
 DIR_SNAKEFILE = pathlib.Path(workflow.basedir).resolve(strict=True)
 PATH_SNAKEFILE = pathlib.Path(workflow.main_snakefile).resolve(strict=True)
+NAME_SNAKEFILE = PATH_SNAKEFILE.stem
 assert DIR_SNAKEFILE.samefile(PATH_SNAKEFILE.parent)
 
 # in principle, a workflow does not have to make use of scripts,
