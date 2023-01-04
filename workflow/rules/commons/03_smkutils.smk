@@ -88,6 +88,42 @@ rule dump_config:
 
 
 
+if SAMPLE_SHEET_NAME is not None:
+
+    localrules:
+        copy_sample_sheet,
+
+    rule copy_sample_sheet:
+        input:
+            SAMPLE_SHEET_PATH,
+        output:
+            COPY_SAMPLE_SHEET_RELPATH,
+        params:
+            acc_in=lambda wildcards, output: register_input(
+                output, allow_non_existing=True
+            ),
+        shell:
+            "rsync {input} {output}"
+
+else:
+
+    localrules:
+        no_sample_sheet,
+
+    rule no_sample_sheet:
+        """This is a mock-up rule
+        needed because Snakemake cannot
+        handle an empty input/output rule
+        that would emerge above if no
+        sample sheet is provided for the
+        workflow run
+        """
+        output:
+            COPY_SAMPLE_SHEET_RELPATH,
+        shell:
+            "touch {output}"
+
+
 rule create_manifest:
     input:
         manifest_files=load_accounting_information,
@@ -106,9 +142,7 @@ rule create_manifest:
         for accounting_file, file_path in ACCOUNTING_FILES.items():
             if not file_path.is_file():
                 if VERBOSE:
-                    warn_msg = (
-                        f"Warning: accounting file of type '{account_file}' not in use."
-                    )
+                    warn_msg = f"Warning: accounting file of type '{account_file}' not in use."
                     logerr(warn_msg)
                 continue
             process_accounting_files[accounting_file] = file_path
@@ -155,7 +189,9 @@ rule create_manifest:
             err_msg += "producing output with the respective 'register_'\n"
             err_msg += "function from the commons/02_pyutils.smk module.\n\n"
             logerr(err_msg)
-            raise RuntimeError("No manifest files collected, but accounts are in use.")
+            raise RuntimeError(
+                "No manifest files collected, but accounts are in use."
+            )
 
         records = collections.defaultdict(dict)
         for line in fileinput.input(process_accounting_files.values(), mode="r"):
