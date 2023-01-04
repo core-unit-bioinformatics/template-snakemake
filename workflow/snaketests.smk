@@ -16,6 +16,7 @@ WORKFLOW_OUTPUT.extend(
 rule run_tests:
     input:
         RUN_CONFIG_RELPATH,
+        COPY_SAMPLE_SHEET_RELPATH,
         MANIFEST_RELPATH,
         WORKFLOW_OUTPUT
 
@@ -23,6 +24,7 @@ rule run_tests:
 rule run_tests_no_manifest:
     input:
         RUN_CONFIG_RELPATH,
+        COPY_SAMPLE_SHEET_RELPATH,
         WORKFLOW_OUTPUT
 
 
