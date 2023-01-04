@@ -1,6 +1,8 @@
-import pathlib
-import sys
 import enum
+import pathlib
+import re
+import sys
+
 
 WAIT_ACC_LOCK_SECS = config.get("wait_acc_lock_secs", 60)
 
@@ -113,12 +115,48 @@ WD_ABSPATH_LOCAL_REF = pathlib.Path("local_ref").resolve(strict=WD_PATHS_MUST_RE
 WD_RELPATH_LOCAL_REF = WD_ABSPATH_LOCAL_REF.relative_to(DIR_WORKING)
 DIR_LOCAL_REF = WD_RELPATH_LOCAL_REF
 
+SAMPLE_SHEET_PATH = config.get("samples", "")
+SAMPLE_SHEET_NAME = None
+
+RUN_SUFFIX = config.get("suffix", "")  # means: default is no suffix
+if RUN_SUFFIX == "derive" and not SAMPLE_SHEET_PATH:
+    raise ValueError("No sample sheet specified, hence, cannot derive run suffix.")
+
+if SAMPLE_SHEET_PATH:
+    SAMPLE_SHEET_PATH = pathlib.Path(SAMPLE_SHEET_PATH).resolve(strict=True)
+    assert SAMPLE_SHEET_PATH.name.lower().endswith(".tsv"), \
+        "Only TSV tables allowed as sample sheet (*.tsv)."
+    SAMPLE_SHEET_NAME = SAMPLE_SHEET_PATH.stem
+    assert SAMPLE_SHEET_NAME
+    if RUN_SUFFIX == "derive":
+        RUN_SUFFIX = SAMPLE_SHEET_NAME
+    # set path in results/ folder to keep a copy
+    # of the sample sheet as part of the output
+    COPY_SAMPLE_SHEET_RELPATH = DIR_RES.joinpath(f"{SAMPLE_SHEET_NAME}.tsv")
+    COPY_SAMPLE_SHEET_ABSPATH = COPY_SAMPLE_SHEET_RELPATH.resolve()
+else:
+    # set target path of sample sheet under results/
+    # to empty path if not sample sheet provided
+    COPY_SAMPLE_SHEET_RELPATH = "no-sample-sheet"
+    COPY_SAMPLE_SHEET_ABSPATH = ""
+
+# Postprocess the run suffix to consist
+# only of digits, chars, and "minus"
+RUN_SUFFIX = RUN_SUFFIX.replace(".", "-").replace("_", "-")
+RUN_SUFFIX = "".join(re.findall("[a-z0-9\-]+", RUN_SUFFIX, re.IGNORECASE))
+# in case the above resulted in two or more
+# consecutive hyphens, replace with single one
+RUN_SUFFIX = re.sub("\-\-+", "-", RUN_SUFFIX)
+
+if RUN_SUFFIX:
+    RUN_SUFFIX = f".{RUN_SUFFIX}"
+
 # fix name of run config dump file and location
-RUN_CONFIG_RELPATH = DIR_RES.joinpath("run_config.yaml")
+RUN_CONFIG_RELPATH = DIR_RES.joinpath(f"run_config{RUN_SUFFIX}.yaml")
 RUN_CONFIG_ABSPATH = RUN_CONFIG_RELPATH.resolve()
 
 # fix name of manifest file and location
-MANIFEST_RELPATH = DIR_RES.joinpath("manifest.tsv")
+MANIFEST_RELPATH = DIR_RES.joinpath(f"manifest{RUN_SUFFIX}.tsv")
 MANIFEST_ABSPATH = MANIFEST_RELPATH.resolve()
 
 # specific constants for the use of reference containers
