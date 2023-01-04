@@ -158,7 +158,7 @@ rule create_manifest:
             raise RuntimeError("No manifest files collected, but accounts are in use.")
 
         records = collections.defaultdict(dict)
-        for line in fileinput.input(ACCOUNTING_FILES.values(), mode="r"):
+        for line in fileinput.input(process_accounting_files.values(), mode="r"):
             path_id, path_record = process_accounting_record(line)
             records[path_id].update(path_record)
 
