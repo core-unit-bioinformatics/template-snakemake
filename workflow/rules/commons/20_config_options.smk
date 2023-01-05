@@ -68,7 +68,7 @@ class ConfigOptions:
         "Singularity",
         (
             "If the Singularity executable has to"
-            " be loaded via an ENV module (usually"
+            " be loaded via an ENV module (common"
             " on HPC infrastructure), specify the"
             " name of the module to load."
             " Default: Singularity"
@@ -76,7 +76,7 @@ class ConfigOptions:
     )
     omit: CFG_PARAM = CFG_PARAM(
         "omit_options",
-        ["wait_acc_lock_secs"],
+        ["wait_acc_lock_secs", "acclock"],
         (
             "Use this listing to suppress"
             " printing the help info for certain"
