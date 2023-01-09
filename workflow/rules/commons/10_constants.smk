@@ -2,6 +2,11 @@ import dataclasses
 import enum
 import pathlib
 
+# Note: this module serves as single source
+# of truth regarding the constant paths
+# listed below. Changing this module
+# affects other code:
+# - init.py script
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class ConstDirectories:
