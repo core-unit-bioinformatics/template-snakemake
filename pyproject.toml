@@ -32,4 +32,4 @@ bmk="benchmark"
 [cubi.workflow.template]
 pid = "undefined"
 system = "smk"
-version = "1.1.0"
+version = "1.2.0"
