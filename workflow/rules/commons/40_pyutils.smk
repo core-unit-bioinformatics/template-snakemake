@@ -395,38 +395,47 @@ def _extract_git_remote():
         ValueError: if no git remotes are configured for the repo
     """
 
+    remotes = []
     try:
         remotes = subprocess.check_output(
-            "git remote -v", shell=True, cwd=DIR_SNAKEFILE
+            "git remote -v", shell=True, cwd=DIR_REPOSITORY
         )
         remotes = remotes.decode().strip().split("\n")
         remotes = [tuple(r.split()) for r in remotes]
     except subprocess.CalledProcessError:
         error_msg = "ERROR:\n"
-        error_msg += "Most likely, 'git' is not available in your $PATH\n."
-        error_msg += (
-            f"Alternatively, this folder {DIR_SNAKEFILE} is not a git repository."
+        error_msg = (
+            f"Could not retrieve git remotes for repository: {DIR_REPOSITORY}\n"
+            "Likely reason: this is not a git clone of the workflow repository.\n"
+            "Consequence: the workflow repository information will not be recorded.\n"
+            "This is strongly discouraged!"
         )
-        logerr(warning_msg)
-        raise
+        # see gh#33 - no longer raises, although
+        # this is really bad practice...
+        logerr(error_msg)
 
-    if not remotes:
-        raise ValueError(f"No git remotes configured for repository at {DIR_SNAKEFILE}")
+    remote_name, remote_url = None, None
 
-    remote_priorities = {"github": 0, "githhu": 1, "origin": 2}
+    if remotes:
 
-    # sort list of remotes by priority,
-    # assign high rank / low priority to unexpected remotes
-    remotes = sorted(
-        [(remote_priorities.get(r[0], 10), r) for r in remotes if r[-1] == "(fetch)"]
-    )
-    # drop priority value
-    remote_info = remotes[0][1]
-    remote_name, remote_url, _ = remote_info
-    remote_url = remote_url.split(":")[-1]
+        remote_priorities = {"github": 0, "githhu": 1, "origin": 2}
 
-    if remote_name not in remote_priorities and VERBOSE:
-        warning_msg = f"WARNING: unexpected git remote (name: {remote_name}) assumed to be primary."
+        # sort list of remotes by priority,
+        # assign high rank / low priority to unexpected remotes
+        remotes = sorted(
+            [
+                (remote_priorities.get(r[0], 10), r)
+                for r in remotes
+                if r[-1] == "(fetch)"
+            ]
+        )
+        # drop priority value
+        remote_name, remote_url, _ = remotes[0][1]
+        remote_url = remote_url.split(":")[-1]
+
+        if remote_name not in remote_priorities and VERBOSE:
+            warning_msg = f"WARNING: unexpected git remote (name: {remote_name}) assumed to be primary."
+            logerr(warning_msg)
 
     return remote_name, remote_url
 
@@ -448,8 +457,12 @@ def collect_git_labels():
     git_in_path = _check_git_available()
 
     if git_in_path:
-
         primary_remote, remote_url = _extract_git_remote()
+    else:
+        primary_remote, remote_url = None, None
+
+    if primary_remote is not None:
+
         label_collection["git_remote"] = primary_remote
         label_collection["git_url"] = remote_url
 
