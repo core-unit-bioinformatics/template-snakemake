@@ -19,33 +19,6 @@ import re
 import sys
 
 
-##################################
-# Settings for compute environment
-CPU_LOW = config.get(
-    OPTIONS.cpu_low.name, OPTIONS.cpu_low.default
-)
-assert isinstance(CPU_LOW, int)
-
-CPU_MEDIUM = config.get(
-    OPTIONS.cpu_medium.name, OPTIONS.cpu_medium.default
-)
-CPU_MED = CPU_MEDIUM
-assert isinstance(CPU_MEDIUM, int)
-
-CPU_HIGH = config.get(
-    OPTIONS.cpu_high.name, OPTIONS.cpu_high.default
-)
-assert isinstance(CPU_HIGH, int)
-
-CPU_MAX = config.get(
-    OPTIONS.cpu_max.name, OPTIONS.cpu_max.default
-)
-assert isinstance(CPU_MAX, int)
-
-ENV_MODULE_SINGULARITY = config.get(
-    OPTIONS.env_singularity.name, OPTIONS.env_singularity.default
-)
-
 ##############################################
 # Settings taken from Snakemake command line
 # (parameters specified in a profile, not in a config)

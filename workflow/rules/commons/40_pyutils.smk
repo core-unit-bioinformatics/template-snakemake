@@ -595,7 +595,11 @@ def _extract_and_set_dryrun_constant():
     in snakemake.__init__.py::main() (first few lines)
     """
 
-    from snakemake import get_argument_parser as get_smk_cli_parser
+    try:
+        from snakemake import get_argument_parser as get_smk_cli_parser
+    except ImportError:
+        assert not SNAKEMAKE_LEGACY_RUN
+        from snakemake.cli import get_argument_parser as get_smk_cli_parser
 
     smk_cli_parser = get_smk_cli_parser()
     args, _ = smk_cli_parser.parse_known_args(sys.argv)
