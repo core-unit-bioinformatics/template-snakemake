@@ -145,7 +145,7 @@ class ConfigOptions:
     )
     suffix: CFG_PARAM = CFG_PARAM(
         "suffix",
-        "",
+        "derive",
         (
             "Specify a suffix to append to the pipeline"
             " manifest output file and the run config"
@@ -157,7 +157,7 @@ class ConfigOptions:
             " all dots and underscores with minus."
             " [Example]: sample.sheet_123.tsv => sample-sheet-123"
             " [Example]: Batch-A.098 => Batch-A-098"
-            " Default: <empty>"
+            " Default: derive"
         ),
     )
     refcon: CFG_PARAM = CFG_PARAM(
