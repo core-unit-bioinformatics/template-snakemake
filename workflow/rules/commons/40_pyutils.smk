@@ -587,42 +587,6 @@ def load_reference_container_names():
 # ==============================================
 
 
-def _extract_and_set_dryrun_constant():
-    """
-    The state of the '--dryrun' option is only available
-    when parsing the original invocation command line.
-    This function mimicks the respective code block
-    in snakemake.__init__.py::main() (first few lines)
-    """
-
-    try:
-        from snakemake import get_argument_parser as get_smk_cli_parser
-    except ImportError:
-        assert not SNAKEMAKE_LEGACY_RUN
-        from snakemake.cli import get_argument_parser as get_smk_cli_parser
-
-    smk_cli_parser = get_smk_cli_parser()
-    args, _ = smk_cli_parser.parse_known_args(sys.argv)
-
-    cli_dryrun = args.dryrun
-    assert isinstance(cli_dryrun, bool)
-
-    # seems extremely unlikely to set the dryrun option as part
-    # of an execution profile, so this just issues a warning if
-    # VERBOSE is set
-    if args.profile and VERBOSE:
-        warning_msg = "\nWARNING (staging): the current value of option '--dryrun' "
-        warning_msg += f"is set to {cli_dryrun}.\nThe '--profile' may override "
-        warning_msg += "that value, but if so, this is ignored.\nWorkflow staging "
-        warning_msg += f"proceeds with '--dry-run' set to {cli_dryrun}.\n"
-        logerr(warning_msg)
-
-    global DRYRUN
-    DRYRUN = cli_dryrun
-
-    return
-
-
 def _reset_file_accounts():
     """
     In case erroneous entries in any of the

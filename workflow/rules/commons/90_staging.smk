@@ -16,10 +16,5 @@ in a very defensive manner, and always
 be tested in some way via "snaketests.smk"
 """
 
-# Set the value of the constant DRYRUN
-_extract_and_set_dryrun_constant()
-assert DRYRUN is not None
-assert isinstance(DRYRUN, bool)
-
 # reset accounting files if requested
 _reset_file_accounts()

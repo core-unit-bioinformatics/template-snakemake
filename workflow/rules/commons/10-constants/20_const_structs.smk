@@ -1,31 +1,13 @@
+"""This module serves as single source
+of truth regarding the constant paths
+listed below (special files and directories).
+Changing this module affects other code:
+- init.py script
+"""
+
 import dataclasses
-import enum
 import pathlib
 
-import snakemake
-import semver
-
-# this is the critical variable to
-# determine whether or not the workflow
-# is executed with old/legacy versions
-# of Snakemake (<= 7) or recent ones
-# --- where needed, code downstream of this
-# must check this condition like this:
-#
-# if SNAKEMAKE_LEGACY_RUN:
-#   do snakemake/old stuff
-# else:
-#   do snakemake/new stuff
-_SNAKEMAKE_LEGACY_THRESHOLD = 8
-_SNAKEMAKE_VERSION = semver.parse_version_info(snakemake.__version__)
-SNAKEMAKE_LEGACY_RUN = _SNAKEMAKE_VERSION.major < _SNAKEMAKE_LEGACY_THRESHOLD
-
-
-# Note: this module serves as single source
-# of truth regarding the constant paths
-# listed below. Changing this module
-# affects other code:
-# - init.py script
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class ConstDirectories:
@@ -69,57 +51,3 @@ class ConstFiles:
 
 
 CONST_FILES = ConstFiles()
-
-
-class TimeUnit(enum.Enum):
-    HOUR = 1
-    hour = 1
-    hours = 1
-    hrs = 1
-    h = 1
-    MINUTE = 2
-    minute = 2
-    minutes = 2
-    min = 2
-    m = 2
-    SECOND = 3
-    second = 3
-    seconds = 3
-    sec = 3
-    s = 3
-
-
-class MemoryUnit(enum.Enum):
-    BYTE = 0
-    byte = 0
-    bytes = 0
-    b = 0
-    B = 0
-    KiB = 1
-    kib = 1
-    kb = 1
-    KB = 1
-    k = 1
-    K = 1
-    kibibyte = 1
-    MiB = 2
-    mib = 2
-    mb = 2
-    MB = 2
-    m = 2
-    M = 2
-    mebibyte = 2
-    GiB = 3
-    gib = 3
-    gb = 3
-    GB = 3
-    g = 3
-    G = 3
-    gibibyte = 3
-    TiB = 4
-    tib = 4
-    tb = 4
-    TB = 4
-    t = 4
-    T = 4
-    tebibyte = 4
