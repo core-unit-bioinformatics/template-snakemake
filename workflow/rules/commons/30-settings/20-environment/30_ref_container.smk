@@ -27,6 +27,20 @@ if USE_REFERENCE_CONTAINER:
         DIR_REFERENCE_CONTAINER = pathlib.Path(DIR_REFERENCE_CONTAINER).resolve(
             strict=True
         )
+        # if the workflow is configured to use reference container,
+        # create the necessary caching folder structure.
+        DIR_REFCON_CACHE = CONST_DIRS.cache_refcon
+        DIR_REFCON_CACHE.mkdir(exist_ok=True, parents=True)
 else:
     DIR_REFERENCE_CONTAINER = pathlib.Path("/")
+    DIR_REFCON_CACHE = None
+
+# TODO - ?
+# this is technically a PATH whose definition is
+# put here by contextual grouping because of the access
+# to USE_REFERENCE_CONTAINER; logically, it would
+# also fit in
+# commons::30-settings::20-environment::05_paths.smk
+# Same holds for the above DIR_REFCON_CACHE
 DIR_REFCON = DIR_REFERENCE_CONTAINER  # shorthand
+

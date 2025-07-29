@@ -1,63 +1,7 @@
-
-localrules:
-    dump_config,
-    create_manifest,
-    show_help,
-
-
-rule show_help:
-    """Rule to print a readable version
-    of all supported config options.
-    Dumps the same info into the file
-    wd/help.generic-config.txt
-    """
-    output:
-        "show-help",
-    retries: 0
-    message:
-        "Dumping help info to file: help.generic-config.txt"
-    run:
-        import textwrap as twr
-        import io
-        import sys
-
-        wrapper = twr.TextWrapper(
-            width=80,
-            initial_indent=4 * " ",
-            subsequent_indent=6 * " ",
-            fix_sentence_endings=True,
-            break_on_hyphens=False,
-        )
-        # options can be omitted from help
-        # to hide options irrelevant to
-        # end users
-        omit = None
-
-        formatted_help = []
-        for option, opt_spec in dataclasses.asdict(OPTIONS).items():
-            if option == "omit":
-                omit = set(opt_spec.default)
-                continue
-            wrapped_help = "\n".join(wrapper.wrap(opt_spec.help))
-            opt_str = f" Option: {opt_spec.name}\n Help:\n{wrapped_help}\n\n"
-            formatted_help.append(((option, opt_spec.name), opt_str))
-        assert omit is not None
-
-        buffer = io.StringIO()
-        _ = buffer.write("\n====== WORKFLOW HELP =======")
-        _ = buffer.write("\n== Generic config options ==\n\n")
-        for (option, name), help_str in formatted_help:
-            if option in omit or name in omit:
-                continue
-            _ = buffer.write(help_str)
-
-        with open("help.generic-config.txt", "w") as dump:
-            _ = dump.write(buffer.getvalue())
-
-        sys.stdout.write(buffer.getvalue())
-        # END OF RUN BLOCK
-
-
+"""Module containing some utility rules
+to realize the file accounting / the
+manifest creation.
+"""
 
 rule accounting_file_md5_size:
     """
@@ -115,68 +59,6 @@ rule accounting_file_sha256:
         mem_gb=lambda wildcards, attempt: 1 * attempt,
     shell:
         "sha256sum {input.source} > {output.sha256}"
-
-
-rule dump_config:
-    output:
-        RUN_CONFIG_RELPATH,
-    params:
-        acc_in=lambda wildcards, output: register_input(output, allow_non_existing=True),
-    run:
-        import yaml
-
-        runinfo = {"_timestamp": get_timestamp(), "_username": get_username()}
-        git_labels = collect_git_labels()
-        for label, value in git_labels:
-            runinfo[f"_{label}"] = value
-        # add complete Snakemake config
-        runinfo.update(config)
-        for special_key in ["devmode", "resetacc"]:
-            try:
-                del runinfo[special_key]
-            except KeyError:
-                pass
-
-        with open(RUN_CONFIG_RELPATH, "w", encoding="ascii") as cfg_dump:
-            yaml.dump(runinfo, cfg_dump, allow_unicode=False, encoding="ascii")
-        # END OF RUN BLOCK
-
-
-
-if SAMPLE_SHEET_NAME is not None:
-
-    localrules:
-        copy_sample_sheet,
-
-    rule copy_sample_sheet:
-        input:
-            SAMPLE_SHEET_PATH,
-        output:
-            COPY_SAMPLE_SHEET_RELPATH,
-        params:
-            acc_in=lambda wildcards, output: register_input(
-                output, allow_non_existing=True
-            ),
-        shell:
-            "rsync {input} {output}"
-
-else:
-
-    localrules:
-        no_sample_sheet,
-
-    rule no_sample_sheet:
-        """This is a mock-up rule
-        needed because Snakemake cannot
-        handle an empty input/output rule
-        that would emerge above if no
-        sample sheet is provided for the
-        workflow run
-        """
-        output:
-            COPY_SAMPLE_SHEET_RELPATH,
-        shell:
-            "touch {output}"
 
 
 rule create_manifest:
@@ -271,4 +153,4 @@ rule create_manifest:
         assert all(c in df.columns for c in reordered_columns)
         df = df[reordered_columns]
         df.to_csv(output.manifest, header=True, index=False, sep="\t")
-        # END OF RUN BLOCK
+    # END OF RUN BLOCK

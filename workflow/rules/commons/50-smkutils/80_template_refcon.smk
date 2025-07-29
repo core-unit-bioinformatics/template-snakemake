@@ -1,18 +1,29 @@
+"""Module containing the utility rules
+to handle requests for reference files
+shipped in CUBI-style reference containers.
+
+This is the Snakemake-equivalent to the Python
+utils implemented in:
+commons::40-pyutils::80_template_refcon.smk
+"""
+
 if USE_REFERENCE_CONTAINER:
 
     localrules:
         refcon_dump_manifest,
         refcon_cache_manifests,
 
+
     rule refcon_dump_manifest:
         input:
             sif=DIR_REFCON.joinpath("{refcon_name}.sif"),
         output:
-            manifest=DIR_PROC.joinpath(".cache", "refcon", "{refcon_name}.manifest"),
+            manifest=DIR_REFCON_CACHE.joinpath("{refcon_name}.manifest"),
         envmodules:
             ENV_MODULE_SINGULARITY,
         shell:
             "{input.sif} manifest > {output.manifest}"
+
 
     rule refcon_run_get_file:
         """
@@ -23,6 +34,16 @@ if USE_REFERENCE_CONTAINER:
         unclear reasons. Hence, for now, force the use of
         "singularity run" to extract data from reference containers
         (i.e., treat them like a regular file)
+
+        Note: this rule produces jobs that can be distributed on
+        a cluster, but it is strongly assumed that all 'file get'
+        (= file copy) operations finish within the default resource
+        limits specified in the respective cluster profile.
+        Why?
+        Because setting resources here / for this rule mandates naming
+        these resources, which may be incompatible with the idiosyncratic
+        naming that the workflow dev / template user sets for all their
+        other rules. It should (must) thus be avoided.
         """
         input:
             cache=trigger_refcon_manifest_caching,
@@ -38,14 +59,15 @@ if USE_REFERENCE_CONTAINER:
         shell:
             "{params.refcon_path} get {wildcards.filename} {output}"
 
+
     checkpoint refcon_cache_manifests:
         input:
             manifests=expand(
-                DIR_PROC.joinpath(".cache", "refcon", "{refcon_name}.manifest"),
+                DIR_REFCON_CACHE.joinpath("{refcon_name}.manifest"),
                 refcon_name=load_reference_container_names(),
             ),
         output:
-            cache=DIR_PROC.joinpath(".cache", "refcon", "refcon_manifests.cache"),
+            cache=DIR_REFCON_CACHE.joinpath("refcon_manifests.cache"),
         run:
             import pandas
 

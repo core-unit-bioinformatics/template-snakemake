@@ -1,6 +1,8 @@
 include: "rules/commons/00_commons.smk"
-include: "rules/00_modules.smk"
-include: "rules/99_aggregate.smk"
+
+if not RUN_IN_TEST_MODE:
+    include: "rules/00_modules.smk"
+    include: "rules/99_aggregate.smk"
 
 
 rule run_all:
@@ -26,6 +28,21 @@ rule run_all_no_manifest:
         RUN_CONFIG_RELPATH,
         COPY_SAMPLE_SHEET_RELPATH,
         WORKFLOW_OUTPUT,
+
+
+rule run_tests:
+    input:
+        RUN_CONFIG_RELPATH,
+        COPY_SAMPLE_SHEET_RELPATH,
+        MANIFEST_RELPATH,
+        WORKFLOW_OUTPUT
+
+
+rule run_tests_no_manifest:
+    input:
+        RUN_CONFIG_RELPATH,
+        COPY_SAMPLE_SHEET_RELPATH,
+        WORKFLOW_OUTPUT
 
 
 onsuccess:

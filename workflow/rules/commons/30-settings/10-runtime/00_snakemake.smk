@@ -92,3 +92,4 @@ RUN_IN_TEST_MODE = any(
     target in ["run_tests", "run_tests_no_manifest"]
     for target in _SMK_CLI_CAPTURE_TARGETS
 )
+assert isinstance(RUN_IN_TEST_MODE, bool)
