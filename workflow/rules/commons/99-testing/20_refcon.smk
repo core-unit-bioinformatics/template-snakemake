@@ -21,7 +21,7 @@ rule test_refcon_functionality:
     input:
         CONTAINER_TEST_FILES,
     output:
-        DIR_RES.joinpath("testing", "refcon-ok.txt"),
+        DIR_PROC.joinpath("testing", "refcon-ok.txt"),
     params:
         acc_out=lambda wildcards, output: register_result(output),
         acc_ref=lambda wildcards, input: register_reference(REGISTER_REFERENCE_FILES),

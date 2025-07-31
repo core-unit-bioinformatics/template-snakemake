@@ -50,7 +50,7 @@ def get_timestamp():
 
 def get_script(script_name, extension="py"):
     """Synonym introduced for naming coherence.
-    The original 'find_script' should be deprecated
+    The original 'find_script' should be removed
     in one of the future major updates.
     """
     predicate = lambda s: script_name == s.stem or script_name == s.name
@@ -83,6 +83,7 @@ def find_script(script_name, extension="py"):
         "The function 'find_script' is deprecated "
         "and will be removed in a future update.\n"
         "Call 'get_script(script_name, extension)' instead.\n"
+        "===========================\n"
     )
     logerr(warn_msg)
     return get_script(script_name, extension)

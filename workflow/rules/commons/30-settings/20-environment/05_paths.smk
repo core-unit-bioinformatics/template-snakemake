@@ -31,14 +31,23 @@ assert DIR_SNAKEFILE.samefile(PATH_SNAKEFILE.parent)
 # If the name of the snakefile is not "Snakefile" and the
 # developer has not set the devmode option, print a hint
 # to help diagnose path resolution errors
-if NAME_SNAKEFILE != "Snakefile" and not RUN_IN_DEV_MODE:
-    hint_msg = "\nDEV HINT:\n"
-    hint_msg += "You are probably executing a testing pipeline,"
-    hint_msg += " but you did not set the config option:\n"
-    hint_msg += " '--config devmode=True'\n"
-    hint_msg += "This may lead to FileNotFoundErrors for the"
-    hint_msg += " subfolders expected to exist"
-    hint_msg += " (proc/, results/ and so on) in the working directory.\n\n"
+if RUN_IN_TEST_MODE and not RUN_IN_DEV_MODE:
+    hint_msg = (
+        "\nDEV HINT:\n"
+        "Looks like you are executing the builtin"
+        " template testing module,"
+        " but you did not set the config option:\n"
+        " '--config devmode=True'\n"
+        "This may lead to FileNotFoundErrors for the"
+        " subfolders expected to exist"
+        " (proc/, results/ and so on) in the working directory.\n"
+        "This may of course be intended to actually test"
+        " for passes/fails related to the assumed default"
+        " directory structure.\nThat is, the code logic of"
+        " the template will not interfere with the process,"
+        " you have to know for yourself what you want to"
+        " achieve here.\n\n"
+    )
     sys.stderr.write(hint_msg)
 
 DIR_REPOSITORY = DIR_SNAKEFILE.parent

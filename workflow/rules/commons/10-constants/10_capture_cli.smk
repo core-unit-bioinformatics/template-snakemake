@@ -25,6 +25,18 @@ a more direct way.
 versions, see, e.g. snakemake/issues/2792)
 """
 
+import os
+import pathlib
+import pickle
+
+# This:
+# See explanation below in
+# _parse_snakemake_invocation_command_line
+_SMK_CLI_CAPTURE_MAIN_PGROUP = os.getpgid(0)
+_SMK_CLI_CAPTURE_CACHE_FILE = pathlib.Path(
+    f"{_SMK_CLI_CAPTURE_MAIN_PGROUP}.cli.pck"
+)
+
 # These are temporary capture variables
 # that are partially used in the correct location
 # commons::30-settings::10-runtime::00_snakemake.smk
@@ -50,9 +62,27 @@ def _parse_snakemake_invocation_command_line():
         from snakemake.cli import get_argument_parser as get_smk_cli_parser
 
     smk_cli_parser = get_smk_cli_parser()
-    # intermixed = named args and target/targets, i.e.
-    # the rules to execute if specified
-    args, _ = smk_cli_parser.parse_known_intermixed_args(sys.argv)
+
+    # This:
+    # each rule execution seems to be performed in
+    # a separate thread that are initialized
+    # directly by the main Snakemake process, i.e.
+    # there is no command line to parse and, hence,
+    # all info extracted from the command line is
+    # no longer available in those children.
+    # Workaround (?): cache the parsed command line
+    # (= the resulting Namespace) in a pickle dump
+    # uniquely identified by the process group ID.
+    global _SMK_CLI_CAPTURE_CACHE_FILE
+    if _SMK_CLI_CAPTURE_CACHE_FILE.is_file():
+        with open(_SMK_CLI_CAPTURE_CACHE_FILE, "rb") as cache:
+            args = pickle.load(cache)
+    else:
+        # intermixed = named args and target/targets, i.e.
+        # the rules to execute if specified
+        args, _ = smk_cli_parser.parse_known_intermixed_args(sys.argv)
+        with open(_SMK_CLI_CAPTURE_CACHE_FILE, "wb") as cache:
+            pickle.dump(args, cache)
 
     return args
 

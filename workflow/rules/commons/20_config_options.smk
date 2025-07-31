@@ -53,7 +53,7 @@ class ConfigOptions:
             " infrastructure. Default: 8"
         )
     )
-    mem_max: CFG_PARAM(
+    mem_max: CFG_PARAM = CFG_PARAM(
         "mem_max",
         "240g",
         (
@@ -66,7 +66,7 @@ class ConfigOptions:
             " an actual number representing the upper limit."
         )
     )
-    mem_common: CFG_PARAM(
+    mem_common: CFG_PARAM = CFG_PARAM(
         "mem_common",
         "16g",
         (

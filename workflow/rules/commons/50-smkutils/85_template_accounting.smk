@@ -124,10 +124,11 @@ rule create_manifest:
             err_msg += "Please check that you properly annotated rules\n"
             err_msg += "consuming input or reference files, and rules\n"
             err_msg += "producing output with the respective 'register_'\n"
-            err_msg += "function from the commons/02_pyutils.smk module.\n\n"
+            err_msg += "function from the\n"
+            err_msg += "commons::40-pyutils::85_template_refcon.smk module.\n\n"
             logerr(err_msg)
             raise RuntimeError(
-                "No manifest files collected, but accounts are in use."
+                "No manifest files collected, but accounting files are in use."
             )
 
         records = collections.defaultdict(dict)

@@ -50,9 +50,9 @@ rule test_find_script_success:
     input:
         rules.create_test_file.output,
     output:
-        DIR_PROC.joinpath("testing", "success-find-script-ok.txt"),
+        DIR_PROC.joinpath("testing", "success-get-script-ok.txt"),
     params:
-        script=find_script("test"),
+        script=get_script("test"),
         acc_out=lambda wildcards, output: register_result(output),
     run:
         import pathlib  # workaround, see gh#20
@@ -69,12 +69,12 @@ rule test_find_script_fail:
     input:
         rules.test_find_script_success.output,
     output:
-        DIR_PROC.joinpath("testing", "fail-find-script-ok.txt"),
+        DIR_PROC.joinpath("testing", "fail-get-script-ok.txt"),
     params:
         acc_out=lambda wildcards, output: register_result(output),
     run:
         try:
-            script = find_script("non_existing")
+            script = get_script("non_existing")
             # the previous line should not succeed,
             # if we are here, we do not create the
             # output file of the test, and thus fail
