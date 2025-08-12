@@ -2,7 +2,7 @@
 
 **Note to developers**: Describe the purpose of the workflow (the big picture)
 
-## User documentation
+## General documentation
 
 ### Core functionality of the template
 
@@ -17,12 +17,27 @@ of standard CUBI workflows enables the pipeline to auto-
 matically create a so-called [**"manifest"** file](template/accounting.md)
 for your analysis run.
 
+### Core parameters of the template
+
+All relevant parameters are documented in [the parameter documention file](template/params_func.md.
+Users can limit their reading to all command line parameters (labeled
+as `USERCONFIG` in the parameter file).
+
+Developers should read the entire [parameter and function documentation](templace/params_func.md)
+and must use all parameters labeled as `GLOBALVAR` when implementing a CUBI
+workflow to enforce a coherent layout and structure. Additionally, convenience
+functions implemented in the template are labeled as `GLOBALFUN`.
+
+Parameters labeled as `DEVONLY` have a very specific purpose within the
+workflow template and should thus only be used with proper insight into
+the inner workings of the workflow template.
+
 In case of questions, please open a GitHub issue in the repository
 of the workflow you are trying to execute.
 
 **Note to developers**: the above is the templated user documentation;
 make sure to update or link to additional documentation, e.g.
-describing workflow-specific parameters etc.
+describing workflow-specific parameters etc. (see next)
 
 ### Workflow-specific configuration and functionality
 
@@ -30,6 +45,12 @@ describing workflow-specific parameters etc.
 to this section or link to Markdown documents
 *organized under `docs/workflow`* in case of a more
 extensive documentation.
+
+For example, when documenting the parameters of your workflow,
+make use of the `DocRecorder` object with the context `WORKFLOW`
+to create the documentation file `docs/workflow/parameters.md`.
+
+TODO: add example use here
 
 ## Developer documentation
 

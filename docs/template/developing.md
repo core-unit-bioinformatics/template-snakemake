@@ -15,7 +15,8 @@ In brief, ...
 1. run `./init.py --dev-only` (requires Python3)
     - this will skip creating the workflow working directory and subfolders
 2. activate the created Conda environment: `conda activate ./dev_env`
-3. write your code, and add tests to `workflow/snaketests.smk`
+3. implement your Snakemake rules
+    - if you are developing the template itself, add tests to `workflow/rules/commons/99-testing`
 4. run tests:
     - note that some tests may be expected to fail and may produce error messages
     - if Snakemake reports a successful pipeline run, then all tests have succeeded
@@ -36,7 +37,6 @@ snakemake --cores 1 \
     [--dryrun] \
     --config devmode=True \
     --directory wd/ \
-    --snakefile workflow/snaketests.smk \
     run_tests
 
 # Example: test w/ reference container;
@@ -51,7 +51,6 @@ snakemake --cores 1 \
     --config devmode=True \
     --directory wd/ \
     --configfiles config/testing/params_refcon.yaml \
-    --snakefile workflow/snaketests.smk \
     run_tests
 ```
 
@@ -60,6 +59,10 @@ MANIFEST, you can first check if all other tests pass
 by targeting the rule `run_tests_no_manifest`.
 
 ## Code style and checks
+
+**Deprecation notice**: CUBI developers are encouraged to perform
+the below checks with `ruff [...]` as far as possible in recent
+versions (v1.5.0+) of the Snakemake template.
 
 Please read the knowledge base articles on
 [naming conventions and code style/format](https://github.com/core-unit-bioinformatics/knowledge-base/wiki/Naming-and-style).
