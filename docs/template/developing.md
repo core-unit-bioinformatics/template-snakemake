@@ -12,8 +12,12 @@ running a workflow.
 
 In brief, ...
 
-1. run `./init.py --dev-only` (requires Python3)
+1. run `./init.py --dev-no-wd --conda-env dev` (requires Python3)
     - this will skip creating the workflow working directory and subfolders
+        - strictly speaking, this is optional and then requires setting the `devmode=True`
+          option in Snakemake (see `bash` code block below).
+    - this will create a Conda development environment as specified in `workflow/envs/dev_env.yaml`
+        - the development environment contains additional software tools for linting, code formatting etc.
 2. activate the created Conda environment: `conda activate ./dev_env`
 3. implement your Snakemake rules
     - if you are developing the template itself, add tests to `workflow/rules/commons/99-testing`

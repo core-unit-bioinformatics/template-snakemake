@@ -6,6 +6,10 @@ such as switching from 'log/' to 'logs/'
 somewhere in the workflow.
 """
 
+_THIS_MODULE = ["commons", "30-settings", "20-environment", "05_paths.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
 
 ### === IMPORTANT === ###
 ### the following set of paths describe files

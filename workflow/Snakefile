@@ -50,6 +50,18 @@ rule run_tests_no_manifest:
         WORKFLOW_OUTPUT
 
 
+rule run_build_docs:
+    run:
+        global DOC_RECORDER
+        try:
+            DOC_RECORDER.generate_documentation()
+        except Exception as err:
+            logerr(f"Auto-generating the workflow documentation failed: {str(err)}")
+            raise
+        else:
+            logout(f"Auto-generating the workflow documentation was successful.")
+
+
 onsuccess:
     if any([DIR_CLUSTERLOG_OUT.is_dir(), DIR_CLUSTERLOG_ERR.is_dir()]):
         shell(f"rm -rf {DIR_CLUSTERLOG_OUT} && mkdir -p {DIR_CLUSTERLOG_OUT}")

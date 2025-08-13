@@ -19,14 +19,17 @@ for your analysis run.
 
 ### Core parameters of the template
 
-All relevant parameters are documented in [the parameter documention file](template/params_func.md.
+All relevant parameters are documented in [the auto-doc file](template/autodoc.md).
 Users can limit their reading to all command line parameters (labeled
 as `USERCONFIG` in the parameter file).
 
-Developers should read the entire [parameter and function documentation](templace/params_func.md)
+Developers should read the entire [documentation](template/autodoc.md)
 and must use all parameters labeled as `GLOBALVAR` when implementing a CUBI
 workflow to enforce a coherent layout and structure. Additionally, convenience
-functions implemented in the template are labeled as `GLOBALFUN`.
+functions implemented in the template are labeled as `GLOBALFUN` and globally
+accessible 'objects' such as classes are labeled as `GLOBALOBJ`. One such example
+is the `DOC_RECORDER` (alias: `DOCREC`) object that must be used
+to document workflow parameters, functions and so on.
 
 Parameters labeled as `DEVONLY` have a very specific purpose within the
 workflow template and should thus only be used with proper insight into
@@ -48,9 +51,13 @@ extensive documentation.
 
 For example, when documenting the parameters of your workflow,
 make use of the `DocRecorder` object with the context `WORKFLOW`
-to create the documentation file `docs/workflow/parameters.md`.
+to create the documentation file `docs/workflow/autodoc.md`.
 
-TODO: add example use here
+In order to trigger building the documentation, execute the workflow
+with the rule `run_build_docs` as the target. For an example how to
+document module members (variables/parameters, functions etc.), see
+the documentation of the `DocRecorder` instance itself in
+`rules::commons::05_docgen.smk`.
 
 ## Developer documentation
 

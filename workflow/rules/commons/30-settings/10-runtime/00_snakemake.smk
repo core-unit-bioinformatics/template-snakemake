@@ -15,6 +15,11 @@ commons::10-constants::10_capture_cli
 for details (how and why)
 """
 
+_THIS_MODULE = ["commons", "30-settings", "10-runtime", "00_snakemake.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
+
 VERBOSE = None
 DEBUG = None
 DRYRUN = None
@@ -67,12 +72,77 @@ else:
 
 
 assert isinstance(VERBOSE, bool)
+DOCREC.add_member_doc(
+    DocLevel.GLOBALVAR,
+    "VERBOSE",
+    VERBOSE,
+    (
+        "Represents the info if the workflow is executed via `snakemake --verbose [...]`, "
+        "i.e. Snakemake is printing verbose/debugging output."
+    )
+)
+
 assert isinstance(DEBUG, bool)
+DOCREC.add_member_doc(
+    DocLevel.GLOBALVAR,
+    "DEBUG",
+    DEBUG,
+    (
+        "Represents the info if the workflow is executed via `snakemake --debug [...]`, "
+        "which allows to set breakpoints in `run:` blocks."
+    )
+)
+
 assert isinstance(DRYRUN, bool)
+DOCREC.add_member_doc(
+    DocLevel.GLOBALVAR,
+    "DRYRUN",
+    DRYRUN,
+    (
+        "Represents the info if the workflow is executed via `snakemake --dryrun [...]`."
+    )
+)
+
 assert isinstance(USE_CONDA, bool)
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "USE_CONDA",
+    USE_CONDA,
+    (
+        "Represents the info if the workflow uses Conda for software deployment."
+    )
+)
+
 assert isinstance(USE_SINGULARITY, bool)
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "USE_SINGULARITY",
+    USE_SINGULARITY,
+    (
+        "Represents the info if the workflow uses Singularity (Apptainer) for software deployment."
+    )
+)
+
 assert isinstance(USE_APPTAINER, bool)
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "USE_APPTAINER",
+    USE_APPTAINER,
+    (
+        "Represents the info if the workflow uses Apptainer (Singularity) for software deployment."
+    )
+)
+
 assert isinstance(USE_ENV_MODULES, bool)
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "USE_ENV_MODULES",
+    USE_ENV_MODULES,
+    (
+        "Represents the info if the workflow uses '(environment) modules' for software deployment. "
+        "This typically only applies to HPC infrastructures."
+    )
+)
 
 
 # Special case: only constant set via the command line
@@ -87,9 +157,28 @@ RUN_IN_DEV_MODE = config.get(
 )
 assert isinstance(RUN_IN_DEV_MODE, bool)
 
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "RUN_IN_DEV_MODE",
+    RUN_IN_DEV_MODE,
+    (
+        "Represents the info if the workflow is executed via `snakemake --config devmode=True [...]`"
+    )
+)
+
 # check if the workflow template tests are executed
 RUN_IN_TEST_MODE = any(
     target in ["run_tests", "run_tests_no_manifest"]
     for target in _SMK_CLI_CAPTURE_TARGETS
 )
 assert isinstance(RUN_IN_TEST_MODE, bool)
+
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "RUN_IN_TEST_MODE",
+    RUN_IN_TEST_MODE,
+    (
+        "Represents the info if the workflow is executed via `snakemake [...] run_tests` "
+        "or `snakemake [...] run_tests_no_manifest`."
+    )
+)
