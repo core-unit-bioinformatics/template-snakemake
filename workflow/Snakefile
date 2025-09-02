@@ -51,6 +51,7 @@ rule run_tests_no_manifest:
 
 
 rule run_build_docs:
+    retries: 0
     run:
         global DOC_RECORDER
         try:
