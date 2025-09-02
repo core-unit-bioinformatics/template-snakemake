@@ -16,20 +16,34 @@ import pathlib
 import socket
 
 
+_THIS_MODULE = ["commons", "40-pyutils", "05_simple_get.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
+
+
 def get_username():
     """
-    return: login name of user as str
+    Returns:
+        user (str): login name of current user
     """
     user = getpass.getuser()
     return user
 
 
+DOCREC.add_function_doc(get_username)
+
+
 def get_hostname():
     """
-    return: host name as str
+    Returns:
+        host (str): name of host machine
     """
     host = socket.gethostname()
     return host
+
+
+DOCREC.add_function_doc(get_hostname)
 
 
 def get_timestamp():
@@ -41,17 +55,40 @@ def get_timestamp():
     YYYY-MM-DDThh-mm-ss
     (24-hour format for time)
 
-    return: 'now' timestamp w/o tz info as str
+    Returns:
+        ts (str): timestamp of 'now' w/o tz
     """
     # format: ISO 8601
     ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     return ts
 
 
+DOCREC.add_function_doc(get_timestamp)
+
+
 def get_script(script_name, extension="py"):
-    """Synonym introduced for naming coherence.
-    The original 'find_script' should be removed
-    in one of the future major updates.
+    """
+    Utility function to locate script files underneath
+    DIR_SCRIPTS. The intended usage context is inside
+    a 'params' block, i.e.:
+
+    rule rule_with_script:
+            [...]
+        params:
+            script = get_script("script_name")
+        shell:
+            '{params.script} [...do scripted task...]'
+
+    Args:
+        script_name (str): file name of the script to be located
+        extension (str): file extension of the script to be locate; default 'py'
+
+    Returns:
+        selected_script (str): full path to script file
+
+    Raises:
+        ValueError: no script or more than one match found
+
     """
     predicate = lambda s: script_name == s.stem or script_name == s.name
 
@@ -73,9 +110,14 @@ def get_script(script_name, extension="py"):
     return selected_script
 
 
+DOCREC.add_function_doc(get_script)
+
+
 def find_script(script_name, extension="py"):
-    """Original name of functionality; to be
-    deprecated, kept for backwards compatibility.
+    """
+    Original version of 'get_script'.
+
+    DEPRECATED FUNCTION --- see 'get_script'
     """
     warn_msg = (
         "commons::40-pyutils::00_simple_get.smk\n"
@@ -88,3 +130,5 @@ def find_script(script_name, extension="py"):
     logerr(warn_msg)
     return get_script(script_name, extension)
 
+
+DOCREC.add_function_doc(find_script)
