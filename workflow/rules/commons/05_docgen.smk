@@ -25,7 +25,8 @@ class DocLevel(enum.Enum):
     GLOBALVAR = 2
     GLOBALFUN = 3
     GLOBALOBJ = 4
-    DEVONLY = 5
+    OBJMETHOD = 5
+    DEVONLY = 6
 
 
 MemberDoc = collections.namedtuple("MemberDoc", "doclevel name datatype documentation")
@@ -106,9 +107,17 @@ class DocRecorder:
         return
 
     def add_module_doc(self, doc_context, module_name):
-        """This member function must be called at the beginning
-        of each new module (= module_name) to record the documentation
+        """
+        This member function must be called at the beginning
+        of each new module to record the documentation
         in the correct module file context.
+
+        Args:
+            doc_context (DocContext): documentation context enum type
+            module_name (str or list of str): name of the module given as relative path
+
+        Returns:
+            None
         """
         assert isinstance(doc_context, DocContext)
         if isinstance(module_name, list) or isinstance(module_name, tuple):
@@ -135,10 +144,60 @@ class DocRecorder:
 
     def add_member_doc(self, doc_level, name, thing, documentation):
         """
+        This function of the DocRecorder class / DOCREC instance
+        must be called to document module-level members, i.e. global
+        variables, functions, objects, user configurables and
+        developer-only information.
+
+        Args:
+            doc_level (DocLevel): the documentation level
+            name (str): name of the documented thing
+            thing (any): the documented thing (i.e., some Python object)
+            documentation (str): the documentation for thing
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: if doc_level in [DocLevel.OBJMETHOD, DocLevel.GLOBALFUN]
         """
         assert isinstance(doc_level, DocLevel)
+        if doc_level in [DocLevel.OBJMETHOD, DocLevel.GLOBALFUN]:
+            err_msg = (
+                "Doc error: use DOCREC.add_function_doc(...) to "
+                "document class methods or global function: "
+                f"{doc_level.name} - {name} - {documentation}"
+            )
+            raise ValueError(err_msg)
         datatype = str(type(thing))
         member_doc = MemberDoc(doc_level.value, name, datatype, documentation)
+        self.module_docs[self.active_module]["module_members"].append(member_doc)
+        return
+
+    def add_function_doc(self, function, parent=None):
+        """
+        This function of the DocRecorder class / DOCREC instance
+        must be called to document either module-level / global
+        functions or class methods. In case of class methods,
+        the documentation level is set to DocLevel.OBJMETHOD and to
+        DocLevel.GLOBALFUN otherwise.
+
+        Args:
+            function (callable): function/method to document
+            parent (None or class): parent class if class method
+
+        Returns:
+            None
+        """
+        datatype = str(type(function))
+        if parent is not None:
+            parent_type = str(type(parent))
+            doc_level = DocLevel.OBJMETHOD
+            datatype = f"{parent_type}.{datatype}"
+        else:
+            doc_level = DocLevel.GLOBALFUN
+        docstring = f"\n```{function.__doc__}\n```"  # embed in Markdown code block
+        member_doc = MemberDoc(doc_level.value, function.__name__, datatype, docstring)
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
 
@@ -264,16 +323,17 @@ DOCREC.add_member_doc(
     (
         "Instance of the `DocRecorder` class that is globally "
         "available to record documentation *in place*. "
-        "The DocRecorder class has two member functions to "
+        "The DocRecorder class has three member functions to "
         "record documentation about 'objects' (in the Python sense) "
         "in module contexts. At the beginning of each module, "
         "call the function `DOC_RECORDER.add_module_doc(...)` "
         "to start a new module context. After that, call the "
-        "function `DOC_RECORDER.add_member_doc(...)` for each "
-        "member ('object' in the Python sense) of the module "
-        "that you want to document. The documentation is dumped "
-        "as a Markdown file and thus supports (basic) Markdown "
-        "syntax for emphasis etc. "
+        "functions `DOC_RECORDER.add_member_doc(...)` for each "
+        "member (everything except for functions/methods) of "
+        "the module that you want to document. For functions "
+        "and object methods, call DOCREC.add_function_doc(...). "
+        "The documentation is dumped as a Markdown file and "
+        "thus supports (basic) Markdown syntax for emphasis etc. "
         "In order to generate the documentation, execute the "
         "workflow with the target rule `run_build_docs`."
     )
@@ -286,4 +346,19 @@ DOCREC.add_member_doc(
     (
         "Alias/short hand for DOC_RECORDER."
     )
+)
+
+DOCREC.add_function_doc(
+    DOCREC.add_module_doc,
+    DOCREC
+)
+
+DOCREC.add_function_doc(
+    DOCREC.add_member_doc,
+    DOCREC
+)
+
+DOCREC.add_function_doc(
+    DOCREC.add_function_doc,
+    DOCREC
 )

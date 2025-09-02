@@ -30,3 +30,7 @@ _reset_file_accounts()
 # reading from that cache file.
 if DRYRUN:
     shell(f"rm -f {_SMK_CLI_CAPTURE_CACHE_FILE}")
+
+
+_THIS_MODULE = None
+_THIS_CONTEXT = None
