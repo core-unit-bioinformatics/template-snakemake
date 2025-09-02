@@ -19,6 +19,10 @@ class DocContext(enum.Enum):
     TEMPLATE = 1
     WORKFLOW = 2
 
+_DOC_CONTEXT_MEMBER_STRING = "; ".join(
+    [f"({member.value}) {member.name}" for member in DocContext]
+)
+
 
 class DocLevel(enum.Enum):
     USERCONFIG = 1
@@ -27,6 +31,10 @@ class DocLevel(enum.Enum):
     GLOBALOBJ = 4
     OBJMETHOD = 5
     DEVONLY = 6
+
+_DOC_LEVEL_MEMBER_STRING = "; ".join(
+    [f"({member.value}) {member.name}" for member in DocLevel]
+)
 
 
 MemberDoc = collections.namedtuple("MemberDoc", "doclevel name datatype documentation")
@@ -245,8 +253,11 @@ class DocRecorder:
                 self._docgen_charbuf += self._docgen_buffer.write(f"{_sng}## Module: {doc_entry.modname}{_dbl}")
                 self._docgen_last_module = doc_entry.modname
 
-                n_chars = self._docgen_buffer.write(f"**Module file**: {doc_entry[2]}{_sng}")
+                n_chars = self._docgen_buffer.write(f"**Module file**: `{doc_entry[2]}`{_sng}")
+                # new module implies we need to reset the doc level
+                self._docgen_last_level = None
                 self._docgen_charbuf += n_chars
+
 
             if doc_entry.memberlevel != self._docgen_last_level:
                 self._docgen_charbuf += self._docgen_buffer.write(
@@ -296,10 +307,11 @@ DOCREC.add_member_doc(
     "DocContext",
     DocContext,
     (
-        "Enum listing the different documentation contexts, "
-        "which is currently limited to TEMPLATE and WORKFLOW. "
+        "Enum listing the different documentation contexts. "
         "The context is used to sort the dumped documentation "
-        "Markdown file into 'docs/template' or 'docs/workflow'."
+        "Markdown file into `docs/<context>/autodoc.md`. "
+        "The currently supported contexts are: "
+        f"{_DOC_CONTEXT_MEMBER_STRING}"
     )
 )
 
@@ -310,9 +322,11 @@ DOCREC.add_member_doc(
     (
         "Enum listing the different documentation levels "
         "such as USERCONFIG and GLOBALVAR that need to be "
-        "specified when documenting module 'members'. "
-        "See documentation of the DOC_RECORDER object "
-        "for more details."
+        "specified when documenting module 'members' and "
+        "'functions'. See documentation of the DOC_RECORDER "
+        "object for more details. The currently supported "
+        "levels are: "
+        f"{_DOC_LEVEL_MEMBER_STRING}"
     )
 )
 
@@ -328,8 +342,8 @@ DOCREC.add_member_doc(
         "in module contexts. At the beginning of each module, "
         "call the function `DOC_RECORDER.add_module_doc(...)` "
         "to start a new module context. After that, call the "
-        "functions `DOC_RECORDER.add_member_doc(...)` for each "
-        "member (everything except for functions/methods) of "
+        "function `DOC_RECORDER.add_member_doc(...)` for each "
+        "member (everything except functions/methods) of "
         "the module that you want to document. For functions "
         "and object methods, call `DOC_RECORDER.add_function_doc(...)`. "
         "The documentation is dumped as a Markdown file and "
