@@ -28,7 +28,7 @@ DOCREC.add_member_doc(
     ENV_MODULE_SINGULARITY,
     (
         "The name of the env(ironment) module that loads "
-        "the Singularity executable into $PATH. This is "
+        "the Singularity executable into `$PATH`. This is "
         "typically only relevant in HPC environments. Note "
         "that Singularity is deprecated and has been replaced "
         "by Apptainer. "
@@ -51,7 +51,7 @@ DOCREC.add_member_doc(
     ENV_MODULE_APPTAINER,
     (
         "The name of the env(ironment) module that loads "
-        "the Apptainer executable into $PATH. This is "
+        "the Apptainer executable into `$PATH`. This is "
         "typically only relevant in HPC environments. "
         "Apptainer is the successor of Singularity "
         "and needed to execute containerized tools. "
