@@ -331,7 +331,7 @@ DOCREC.add_member_doc(
         "functions `DOC_RECORDER.add_member_doc(...)` for each "
         "member (everything except for functions/methods) of "
         "the module that you want to document. For functions "
-        "and object methods, call DOCREC.add_function_doc(...). "
+        "and object methods, call `DOC_RECORDER.add_function_doc(...)`. "
         "The documentation is dumped as a Markdown file and "
         "thus supports (basic) Markdown syntax for emphasis etc. "
         "In order to generate the documentation, execute the "
