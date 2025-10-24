@@ -20,6 +20,12 @@ import pickle
 import portalocker
 
 
+_THIS_MODULE = ["commons", "40-pyutils", "85_template_accounting.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
+
+
 def _add_file_to_account(accounting_file, fmt_records):
     """
     Add registered files to the respective accounting file;
@@ -82,11 +88,36 @@ def _add_checksum_files(add_files, subfolder):
 
 def register_input(*args, allow_non_existing=False):
     """
+    TODO: potential breaking change - ?
+    Fix English for keyword argument: 'allow_non_existent'
+
+    The 'register_input(...)' function must be used
+    to register all files in the file accounting process
+    that should appear as workflow input files in the
+    final (file) manifest. Its use should have the following
+    form:
+
+    rule some_rule_name:
+        input:
+            ...
+        params:
+            acc_in=lambda wildcards, input: register_input(input)
+
+    The above would register all files of the 'input' object
+    as workflow input files and compute checksums and file sizes
+    for all of them to be included in the workflow file manifest.
+
+    Notably, this function assumes that all files exist when the
+    workflow starts / the function is called, which is a logical
+    necessity. There are edge cases such as the run config dump
+    file, which is created as part of the workflow run and yet
+    considered an input file (= no workflow run w/o config file).
+
     This register function has slightly
     different semantics because input files
     should always exist when the workflow starts.
     For special cases, a keyword-only argument can
-    be set to accept non-existing files when the
+    be set to accept non-existent files when the
     pipeline run starts and yet the files should
     be counted as input files. One of those
     special cases is the config dump, which is
@@ -94,9 +125,15 @@ def register_input(*args, allow_non_existing=False):
     the workflow w/o config), but the dump
     is only created after execution.
 
-    Note: the return value must be constant to
-    avoid that Snakemake triggers a rerun b/c
-    of a changed rule parameter
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+        allow_non_existing (bool): do not raise for non-existent files
+
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
     """
     if DRYRUN:
         accounting_file = ACCOUNTING_FILES["inputs"]
@@ -121,10 +158,24 @@ def register_input(*args, allow_non_existing=False):
     return None
 
 
+DOCREC.add_function_doc(register_input)
+
+
 def register_reference(*args):
     """
-    See note in "register_input" regarding
-    return value; same here.
+    Register reference file(s) for the workflow manifest.
+    The difference between 'input' and 'reference' is mostly
+    semantics, i.e., scientists typically distinguish between
+    these two categories and so do we.
+
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
+
     """
     if DRYRUN:
         accounting_file = ACCOUNTING_FILES["references"]
@@ -134,10 +185,24 @@ def register_reference(*args):
     return None
 
 
+DOCREC.add_function_doc(register_reference)
+
+
 def register_result(*args):
     """
-    See note in "register_input" regarding
-    return value; same here.
+    Register reference file(s) for the workflow manifest.
+    The difference between 'input' and 'reference' is mostly
+    semantics, i.e., scientists typically distinguish between
+    these two categories and so do we.
+
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
+
     """
     if DRYRUN:
         accounting_file = ACCOUNTING_FILES["results"]
@@ -147,11 +212,24 @@ def register_result(*args):
     return None
 
 
+DOCREC.add_function_doc(register_result)
+
+
 def load_accounting_information(wildcards):
     """
     This function loads the file paths from all
     three accounting files to force creation
     (relevant for checksum and size files).
+
+    Args:
+        wildcards: required argument because the function
+        is called as an input function of a Snakemake rule;
+        wildcards are not processed in this function
+        (constant output)
+    Returns:
+        List[str] : the file paths of the three
+        accounting files (input, reference and results)
+
     """
     created_files = []
     for account_name, account_file in ACCOUNTING_FILES.items():
@@ -172,8 +250,23 @@ def load_accounting_information(wildcards):
     return sorted(created_files)
 
 
+DOCREC.add_function_doc(load_accounting_information)
+
+
 def load_file_by_path_id(wildcards):
-    """ """
+    """
+    Simple utility function that extracts
+    the source file path from the accounting
+    files.
+
+    Args:
+        wildcards: contains the wildcards to select
+            the correct account type (input, reference, result)
+            and the path ID that uniquely identifies
+            the file.
+    Returns:
+        str: source file path
+    """
     account_type = wildcards.file_type
     assert account_type in ACCOUNTING_FILES
     account_file = ACCOUNTING_FILES[account_type]
@@ -200,14 +293,42 @@ def load_file_by_path_id(wildcards):
     return req_file
 
 
+DOCREC.add_function_doc(load_file_by_path_id)
+
+
 def _load_data_line(file_path):
+    """
+    Simple utility function that reads the file metadata
+    (= file size or checksums) from the respective files
+    on disk.
+
+    Args:
+        file_path: path to metadata file, i.e. *.md5 / *.bytes / *.sha256
+    Returns:
+        str: the respective metadata value, i.e. a checksum or file size
+    """
     with open(file_path, "r") as dump:
         content = dump.readline().strip().split()[0]
     return content
 
 
+DOCREC.add_function_doc(_load_data_line)
+
+
 def process_accounting_record(line):
-    """ """
+    """
+    This function is called for each entry in the accounting
+    files (= one input, reference or result file) and then
+    determines what information has to be gathered:
+    checksum / size / file metadata such as name.
+
+    Args:
+        line: a string line from an accounting file
+    Returns:
+        str, dict: the path ID (= unique file key) and
+            the collected metadata such as the file
+            checksum or size
+    """
     path, path_id, file_category, record_type = line.strip().split()
     if record_type == "data":
         record = {
@@ -229,3 +350,6 @@ def process_accounting_record(line):
             "path_id": path_id,
         }
     return path_id, record
+
+
+DOCREC.add_function_doc(process_accounting_record)
