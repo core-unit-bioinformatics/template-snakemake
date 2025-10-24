@@ -32,5 +32,7 @@ if DRYRUN:
     shell(f"rm -f {_SMK_CLI_CAPTURE_CACHE_FILE}")
 
 
+# just resetting these values that were used
+# throughout the template by the DocRecorder
 _THIS_MODULE = None
 _THIS_CONTEXT = None
