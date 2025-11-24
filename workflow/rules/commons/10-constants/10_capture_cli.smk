@@ -25,17 +25,11 @@ a more direct way.
 versions, see, e.g. snakemake/issues/2792)
 """
 
+import enum
 import os
 import pathlib
 import pickle
 
-# This:
-# See explanation below in
-# _parse_snakemake_invocation_command_line
-_SMK_CLI_CAPTURE_MAIN_PGROUP = os.getpgid(0)
-_SMK_CLI_CAPTURE_CACHE_FILE = pathlib.Path(
-    f"{_SMK_CLI_CAPTURE_MAIN_PGROUP}.cli.pck"
-)
 
 # These are temporary capture variables
 # that are partially used in the correct location
@@ -45,9 +39,12 @@ _SMK_CLI_CAPTURE_CACHE_FILE = pathlib.Path(
 # in more direct ways, all of the below must
 # be moved into the appropriate sub-module.
 _SMK_CLI_CAPTURE_ARGS = None
+_SMK_CLI_CAPTURE_CACHE_FILE = None
+_SMK_CLI_MAIN_PROCESS = None
 _SMK_CLI_CAPTURE_DRYRUN = None
 _SMK_CLI_CAPTURE_DEBUG = None
 _SMK_CLI_CAPTURE_TARGETS = None
+_SMK_CLI_IS_MAIN_PROCESS = None
 
 
 def _parse_snakemake_invocation_command_line():
@@ -62,31 +59,80 @@ def _parse_snakemake_invocation_command_line():
         from snakemake.cli import get_argument_parser as get_smk_cli_parser
 
     smk_cli_parser = get_smk_cli_parser()
-
-    # This:
-    # each rule execution seems to be performed in
-    # a separate thread that are initialized
-    # directly by the main Snakemake process, i.e.
-    # there is no command line to parse and, hence,
-    # all info extracted from the command line is
-    # no longer available in those children.
-    # Workaround (?): cache the parsed command line
-    # (= the resulting Namespace) in a pickle dump
-    # uniquely identified by the process group ID.
-    global _SMK_CLI_CAPTURE_CACHE_FILE
-    if _SMK_CLI_CAPTURE_CACHE_FILE.is_file():
-        with open(_SMK_CLI_CAPTURE_CACHE_FILE, "rb") as cache:
-            args = pickle.load(cache)
-    else:
-        # intermixed = named args and target/targets, i.e.
-        # the rules to execute if specified
-        args, _ = smk_cli_parser.parse_known_intermixed_args(sys.argv)
-        with open(_SMK_CLI_CAPTURE_CACHE_FILE, "wb") as cache:
-            pickle.dump(args, cache)
+    args, _ = smk_cli_parser.parse_known_intermixed_args(sys.argv)
 
     return args
 
+
+def _find_cli_cache_file(is_main_process):
+    """The process group ID is stable in
+    case of job execution in children of
+    the main process. If not (e.g., cluster),
+    just find the most recent file.
+    """
+    pgid = os.getpgid(0)
+    default_path = pathlib.Path(
+        f"{pgid}.cli.pck"
+    )
+    if default_path.is_file():
+        cache_file = default_path
+    elif is_main_process:
+        # to be created then
+        cache_file = default_path
+    else:
+        # must exist, created by main
+        cli_files = sorted(
+            pathlib.Path(".").glob("*.cli.pck"),
+            key=lambda fp: os.path.getmtime(fp),
+            reverse=True
+        )
+        # we select the most recent one, sorted
+        # above by mtime from higher (younger)
+        # to lower (older)
+        # NB: this naturally fails is no cli
+        # cache file has been created, which is
+        # an expected raise
+        cache_file = cli_files[0]
+
+    return cache_file
+
+
+def _dump_cli_cache_file(cache_file, smk_args):
+    """Snakemake execution subprocesses are
+    initialized w/ a modified command line,
+    so we preserve the original invocation
+    command line to access info such as the
+    tests being executed (necessary for
+    correct module includes in legacy runs).
+    """
+    with open(cache_file, "wb") as cache:
+        pickle.dump(smk_args, cache)
+    return
+
+
+def _read_cli_cache_file(cache_file):
+    """
+    """
+    with open(_SMK_CLI_CAPTURE_CACHE_FILE, "rb") as cache:
+        smk_args = pickle.load(cache)
+    return smk_args
+
+
 _SMK_CLI_CAPTURE_ARGS = _parse_snakemake_invocation_command_line()
+if SNAKEMAKE_LEGACY_RUN:
+    assert isinstance(_SMK_CLI_CAPTURE_ARGS.mode, int)
+    _SMK_CLI_IS_MAIN_PROCESS = _SMK_CLI_CAPTURE_ARGS.mode < 1
+else:
+    assert isinstance(_SMK_CLI_CAPTURE_ARGS.mode, enum.Enum)
+    _SMK_CLI_IS_MAIN_PROCESS = _SMK_CLI_CAPTURE_ARGS.mode.value < 1
+
+_SMK_CLI_CAPTURE_CACHE_FILE = _find_cli_cache_file(_SMK_CLI_IS_MAIN_PROCESS)
+if _SMK_CLI_IS_MAIN_PROCESS:
+    _dump_cli_cache_file(_SMK_CLI_CAPTURE_CACHE_FILE, _SMK_CLI_CAPTURE_ARGS)
+else:
+    _SMK_CLI_CAPTURE_ARGS = _read_cli_cache_file(_SMK_CLI_CAPTURE_CACHE_FILE)
+
+
 _SMK_CLI_CAPTURE_DEBUG = _SMK_CLI_CAPTURE_ARGS.debug
 
 if SNAKEMAKE_LEGACY_RUN:
