@@ -88,6 +88,25 @@
     - datatype: <class 'bool'>
     - documentation: This variable can be checked if it is critical to determine whether or not the workflow is executed with a Snakemake legacy version (typically v7) or with a more recent release (typically v9+).
 
+## Module: commons::30-settings::00-infrastructure::00_hardware.smk
+
+**Module file**: `workflow/rules/commons/30-settings/00-infrastructure/00_hardware.smk`
+
+### Documentation level: USERCONFIG
+
+1. CPU_HIGH
+    - datatype: <class 'int'>
+    - documentation: The number of CPU cores/threads to use for rules benefitting from high parallelization. Typical values are in the range of 16 to 24. See the help for CPU_LOW for more details.
+2. CPU_LOW
+    - datatype: <class 'int'>
+    - documentation: The number of CPU cores/threads to use for rules benefitting from limited parallelization. Typical values are in the range of 2 to 6. Workflow developers refer to this value in the 'threads' directive of the relevant rules. Users can dynamically change this value via the command line, i.e. by setting --config cpu_low=N or by adding the entry cpu_low: N to any of the Snakemake YAML configuration files read via --configfiles.
+3. CPU_MAX
+    - datatype: <class 'int'>
+    - documentation: The number of CPU cores/threads to use for rules benefitting from maximal parallelization. Typical values are in the range of 48 to 128. Note that this value must not be higher than the CPU limit of the infrastructure the workflow is running on. See the help for CPU_LOW for more details.
+4. CPU_MEDIUM|CPU_MED
+    - datatype: <class 'int'>
+    - documentation: The number of CPU cores/threads to use for rules benefitting from modest parallelization. Typical values are in the range of 8 to 12. See the help for CPU_LOW for more details.
+
 ## Module: commons::30-settings::00-infrastructure::10_software.smk
 
 **Module file**: `workflow/rules/commons/30-settings/00-infrastructure/10_software.smk`
@@ -333,7 +352,7 @@
     - documentation: 
 ```
     Log a message with info 'level' to 'stream',
-    which must support a write method. By default,
+    which must feature a write method. By default,
     the 'message' is prefixed with the current timestamp.
 
     TODO - introduce enum type for levels?
@@ -347,6 +366,216 @@
 
     Returns:
         None
+    
+```
+
+## Module: commons::40-pyutils::85_template_accounting.smk
+
+**Module file**: `workflow/rules/commons/40-pyutils/85_template_accounting.smk`
+
+### Documentation level: GLOBALFUN
+
+1. _load_data_line
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Simple utility function that reads the file metadata
+    (= file size or checksums) from the respective files
+    on disk.
+
+    Args:
+        file_path: path to metadata file, i.e. *.md5 / *.bytes / *.sha256
+    Returns:
+        str: the respective metadata value, i.e. a checksum or file size
+    
+```
+2. load_accounting_information
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    This function loads the file paths from all
+    three accounting files to force creation
+    (relevant for checksum and size files).
+
+    Args:
+        wildcards: required argument because the function
+        is called as an input function of a Snakemake rule;
+        wildcards are not processed in this function
+        (constant output)
+    Returns:
+        List[str] : the file paths of the three
+        accounting files (input, reference and results)
+
+    
+```
+3. load_file_by_path_id
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Simple utility function that extracts
+    the source file path from the accounting
+    files.
+
+    Args:
+        wildcards: contains the wildcards to select
+            the correct account type (input, reference, result)
+            and the path ID that uniquely identifies
+            the file.
+    Returns:
+        str: source file path
+    
+```
+4. process_accounting_record
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    This function is called for each entry in the accounting
+    files (= one input, reference or result file) and then
+    determines what information has to be gathered:
+    checksum / size / file metadata such as name.
+
+    Args:
+        line: a string line from an accounting file
+    Returns:
+        str, dict: the path ID (= unique file key) and
+            the collected metadata such as the file
+            checksum or size
+    
+```
+5. register_input
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    TODO: potential breaking change - ?
+    Fix English for keyword argument: 'allow_non_existent'
+
+    The 'register_input(...)' function must be used
+    to register all files in the file accounting process
+    that should appear as workflow input files in the
+    final (file) manifest. Its use should have the following
+    form:
+
+    rule some_rule_name:
+        input:
+            ...
+        params:
+            acc_in=lambda wildcards, input: register_input(input)
+
+    The above would register all files of the 'input' object
+    as workflow input files and compute checksums and file sizes
+    for all of them to be included in the workflow file manifest.
+
+    Notably, this function assumes that all files exist when the
+    workflow starts / the function is called, which is a logical
+    necessity. There are edge cases such as the run config dump
+    file, which is created as part of the workflow run and yet
+    considered an input file (= no workflow run w/o config file).
+
+    This register function has slightly
+    different semantics because input files
+    should always exist when the workflow starts.
+    For special cases, a keyword-only argument can
+    be set to accept non-existent files when the
+    pipeline run starts and yet the files should
+    be counted as input files. One of those
+    special cases is the config dump, which is
+    counted as part of the input (cannot run
+    the workflow w/o config), but the dump
+    is only created after execution.
+
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+        allow_non_existing (bool): do not raise for non-existent files
+
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
+    
+```
+6. register_reference
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Register reference file(s) for the workflow manifest.
+    The difference between 'input' and 'reference' is mostly
+    semantics, i.e., scientists typically distinguish between
+    these two categories and so do we.
+
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
+
+    
+```
+7. register_result
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Register reference file(s) for the workflow manifest.
+    The difference between 'input' and 'reference' is mostly
+    semantics, i.e., scientists typically distinguish between
+    these two categories and so do we.
+
+    Args:
+        args (any): a file path or a potentially nested object
+            containing many file paths to be registered as
+            workflow input files.
+    Returns:
+        None: must be constant to avoid rerun triggers
+            because of changing rule parameters.
+
+    
+```
+
+## Module: commons::40-pyutils::90_template_staging.smk
+
+**Module file**: `workflow/rules/commons/40-pyutils/90_template_staging.smk`
+
+### Documentation level: GLOBALFUN
+
+1. _reset_file_accounts
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Why is this function needed?
+    - The way the file accounting currently caches
+    the entries about file metadata to produce (checksums
+    and file size) can lead to errors during development
+    of a workflow when fileA is replaced by fileB, but
+    the accounting cache still contains fileA.md5,
+    fileA.sha256 and fileA.size, which can no longer
+    be generated because fileA is no longer produced
+    by the workflow.
+
+    In this case, the user needs to manually reset the
+    file accounting cache via
+
+    snakemake [...] --config resetacc=True [...]
+
+    Notably, this only resets the cache, it does not
+    delete already computed metadata files. After that,
+    the user can simply update the cache as usual by
+    running the workflow in dry run mode twice.
+
+    TODO:
+    - implement a clean up step that deletes metadata files
+    that are no longer needed (little volume, but can be many
+    files)
+    - make caching dynamic to allow auto-delete of metadata
+    entries that refer to non-existent files (dangerous because
+    it may obscrue errors).
+
+    Args:
+        <none>
+    Returns:
+        <none>
+
     
 ```
 
