@@ -26,11 +26,12 @@ _DOC_CONTEXT_MEMBER_STRING = "; ".join(
 
 class DocLevel(enum.Enum):
     USERCONFIG = 1
-    GLOBALVAR = 2
-    GLOBALFUN = 3
-    GLOBALOBJ = 4
-    OBJMETHOD = 5
-    DEVONLY = 6
+    TARGETRULE = 2
+    GLOBALVAR = 3
+    GLOBALFUN = 4
+    GLOBALOBJ = 5
+    OBJMETHOD = 6
+    DEVONLY = 7
 
 _DOC_LEVEL_MEMBER_STRING = "; ".join(
     [f"({member.value}) {member.name}" for member in DocLevel]
@@ -209,6 +210,29 @@ class DocRecorder:
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
 
+    def add_rule_doc(self, rule):
+        """
+        This function of the DocRecorder class / DOCREC instance
+        must be called to document Snakemake rules that represent
+        reasonable execution targets from the user perspective.
+        Canonically, this applies to all rules in the main
+        Snakefile and potentially also to aggregation-style
+        rules at the end of individual workflow modules.
+
+        Args:
+            rule (snakemake.rules.Rule): rule to document
+
+        Returns:
+            None
+        """
+        assert isinstance(rule, snakemake.rules.Rule), f"Expect Rule object, not {type(rule)}"
+        datatype = str(type(rule))
+        doc_level = DocLevel.TARGETRULE
+        docstring = f"\n```{rule.docstring}\n```"  # embed in Markdown code block
+        member_doc = MemberDoc(doc_level.value, rule.name, datatype, docstring)
+        self.module_docs[self.active_module]["module_members"].append(member_doc)
+        return
+
     def generate_documentation(self):
         """
         """
@@ -374,5 +398,10 @@ DOCREC.add_function_doc(
 
 DOCREC.add_function_doc(
     DOCREC.add_function_doc,
+    DOCREC
+)
+
+DOCREC.add_function_doc(
+    DOCREC.add_rule_doc,
     DOCREC
 )

@@ -17,7 +17,7 @@
     - documentation: Enum listing the different documentation contexts. The context is used to sort the dumped documentation Markdown file into `docs/<context>/autodoc.md`. The currently supported contexts are: (1) TEMPLATE; (2) WORKFLOW
 4. DocLevel
     - datatype: <class 'enum.EnumType'>
-    - documentation: Enum listing the different documentation levels such as USERCONFIG and GLOBALVAR that need to be specified when documenting module 'members' and 'functions'. See documentation of the DOC_RECORDER object for more details. The currently supported levels are: (1) USERCONFIG; (2) GLOBALVAR; (3) GLOBALFUN; (4) GLOBALOBJ; (5) OBJMETHOD; (6) DEVONLY
+    - documentation: Enum listing the different documentation levels such as USERCONFIG and GLOBALVAR that need to be specified when documenting module 'members' and 'functions'. See documentation of the DOC_RECORDER object for more details. The currently supported levels are: (1) USERCONFIG; (2) TARGETRULE; (3) GLOBALVAR; (4) GLOBALFUN; (5) GLOBALOBJ; (6) OBJMETHOD; (7) DEVONLY
 
 ### Documentation level: OBJMETHOD
 
@@ -72,6 +72,24 @@
         Args:
             doc_context (DocContext): documentation context enum type
             module_name (str or list of str): name of the module given as relative path
+
+        Returns:
+            None
+        
+```
+4. add_rule_doc
+    - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
+    - documentation: 
+```
+        This function of the DocRecorder class / DOCREC instance
+        must be called to document Snakemake rules that represent
+        reasonable execution targets from the user perspective.
+        Canonically, this applies to all rules in the main
+        Snakefile and potentially also to aggregation-style
+        rules at the end of individual workflow modules.
+
+        Args:
+            rule (snakemake.rules.Rule): rule to document
 
         Returns:
             None
