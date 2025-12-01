@@ -302,7 +302,12 @@ class DocRecorder:
         _sng = self._single_line_break
         _indent = self._four_spaces_indent
 
-        for doc_entry in ordered_doc_entries:
+        while 1:
+            try:
+                doc_entry = heapq.heappop(ordered_doc_entries)
+            except IndexError:
+                break
+
             if doc_entry.modcontext != self._docgen_last_context:
                 if self._docgen_charbuf > 0:
                     context_name = DocContext(self._docgen_last_context).name
