@@ -123,7 +123,6 @@ class DocRecorder:
         """
         """
         uniform_docstring = "<NEWLINE><4SINDENT>" + docstring.strip() + "<NEWLINE>"
-        special_replace = {"\t": "<TAB>", "\n": "<NEWLINE>"}
         uniform_docstring = uniform_docstring.replace(
             "\t", "<TAB>"
         ).replace(
