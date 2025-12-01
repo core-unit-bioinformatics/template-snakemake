@@ -1,21 +1,41 @@
 # Parameter and function docs for context: TEMPLATE
 
+## Module: Snakefile
+
+**Module file**: `workflow/Snakefile`
+
+### Documentation level: TARGETRULE
+
+1. run_all
+    - datatype: <class 'snakemake.rules.Rule'>
+    - documentation: 
+```
+    This is the default target rule to trigger
+    the execution of all rules in the workflow.
+    The 'run_all' rule includes the following three
+    templated workflow tasks:
+    1. dump the workflow config object into the results/ folder
+    2. copy the sample sheet into the results/ folder (if applicable)
+    3. create the workflow manifest file in the results/ folder (if applicable)
+
+    The object 'WORKFLOW_OUTPUT' is a simple list containing all
+    workflow outputs (files). This list is created in the module
+    rules::commons::99_aggregate.smk
+```
+
 ## Module: commons::05_docgen.smk
 
 **Module file**: `workflow/rules/commons/05_docgen.smk`
 
 ### Documentation level: GLOBALOBJ
 
-1. DOCREC
-    - datatype: <class 'snakemake.workflow.DocRecorder'>
-    - documentation: Alias/short hand for DOC_RECORDER.
-2. DOC_RECORDER
+1. DOC_RECORDER
     - datatype: <class 'snakemake.workflow.DocRecorder'>
     - documentation: Instance of the `DocRecorder` class that is globally available to record documentation *in place*. The DocRecorder class has three member functions to record documentation about 'objects' (in the Python sense) in module contexts. At the beginning of each module, call the function `DOC_RECORDER.add_module_doc(...)` to start a new module context. After that, call the function `DOC_RECORDER.add_member_doc(...)` for each member (everything except functions/methods) of the module that you want to document. For functions and object methods, call `DOC_RECORDER.add_function_doc(...)`. The documentation is dumped as a Markdown file and thus supports (basic) Markdown syntax for emphasis etc. In order to generate the documentation, execute the workflow with the target rule `run_build_docs`.
-3. DocContext
-    - datatype: <class 'enum.EnumType'>
-    - documentation: Enum listing the different documentation contexts. The context is used to sort the dumped documentation Markdown file into `docs/<context>/autodoc.md`. The currently supported contexts are: (1) TEMPLATE; (2) WORKFLOW
-4. DocLevel
+2. DOCREC
+    - datatype: <class 'snakemake.workflow.DocRecorder'>
+    - documentation: Alias/short hand for DOC_RECORDER.
+3. DocLevel
     - datatype: <class 'enum.EnumType'>
     - documentation: Enum listing the different documentation levels such as USERCONFIG and GLOBALVAR that need to be specified when documenting module 'members' and 'functions'. See documentation of the DOC_RECORDER object for more details. The currently supported levels are: (1) USERCONFIG; (2) TARGETRULE; (3) GLOBALVAR; (4) GLOBALFUN; (5) GLOBALOBJ; (6) OBJMETHOD; (7) DEVONLY
 
@@ -25,75 +45,69 @@
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
     - documentation: 
 ```
-        This function of the DocRecorder class / DOCREC instance
-        must be called to document either module-level / global
-        functions or class methods. In case of class methods,
-        the documentation level is set to DocLevel.OBJMETHOD and to
-        DocLevel.GLOBALFUN otherwise.
+    This function of the DocRecorder class / DOCREC instance
+    must be called to document either module-level / global
+    functions or class methods. In case of class methods,
+    the documentation level is set to DocLevel.OBJMETHOD and to
+    DocLevel.GLOBALFUN otherwise.
 
-        Args:
-            function (callable): function/method to document
-            parent (None or class): parent class if class method
+    Args:
+        function (callable): function/method to document
+        parent (None or class): parent class if class method
 
-        Returns:
-            None
-        
+    Returns:
+        None
 ```
 2. add_member_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
     - documentation: 
 ```
-        This function of the DocRecorder class / DOCREC instance
-        must be called to document module-level members, i.e. global
-        variables, functions, objects, user configurables and
-        developer-only information.
+    This function of the DocRecorder class / DOCREC instance
+    must be called to document module-level members, i.e. global
+    variables, functions, objects, user configurables and
+    developer-only information.
 
-        Args:
-            doc_level (DocLevel): the documentation level
-            name (str): name of the documented thing
-            thing (any): the documented thing (i.e., some Python object)
-            documentation (str): the documentation for thing
+    Args:
+        doc_level (DocLevel): the documentation level
+        name (str): name of the documented thing
+        thing (any): the documented thing (i.e., some Python object)
+        documentation (str): the documentation for thing
 
-        Returns:
-            None
+    Returns:
+        None
 
-        Raises:
-            ValueError: if doc_level in [DocLevel.OBJMETHOD, DocLevel.GLOBALFUN]
-        
+    Raises:
+        ValueError: if doc_level in [
+            DocLevel.OBJMETHOD
+            DocLevel.GLOBALFUN
+            DocLevel.TARGETRULE
+        ]
 ```
-3. add_module_doc
+
+### Documentation level: GLOBALOBJ
+
+1. DocContext
+    - datatype: <class 'enum.EnumType'>
+    - documentation: Enum listing the different documentation contexts. The context is used to sort the dumped documentation Markdown file into `docs/<context>/autodoc.md`. The currently supported contexts are: (1) TEMPLATE; (2) WORKFLOW
+
+### Documentation level: OBJMETHOD
+
+1. add_rule_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
     - documentation: 
 ```
-        This member function must be called at the beginning
-        of each new module to record the documentation
-        in the correct module file context.
+    This function of the DocRecorder class / DOCREC instance
+    must be called to document Snakemake rules that represent
+    reasonable execution targets from the user perspective.
+    Canonically, this applies to all rules in the main
+    Snakefile and potentially also to aggregation-style
+    rules at the end of individual workflow modules.
 
-        Args:
-            doc_context (DocContext): documentation context enum type
-            module_name (str or list of str): name of the module given as relative path
+    Args:
+        rule (snakemake.rules.Rule): rule to document
 
-        Returns:
-            None
-        
-```
-4. add_rule_doc
-    - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
-```
-        This function of the DocRecorder class / DOCREC instance
-        must be called to document Snakemake rules that represent
-        reasonable execution targets from the user perspective.
-        Canonically, this applies to all rules in the main
-        Snakefile and potentially also to aggregation-style
-        rules at the end of individual workflow modules.
-
-        Args:
-            rule (snakemake.rules.Rule): rule to document
-
-        Returns:
-            None
-        
+    Returns:
+        None
 ```
 
 ## Module: commons::10-constants::00_legacy.smk
@@ -134,9 +148,28 @@
 1. ENV_MODULE_APPTAINER
     - datatype: <class 'str'>
     - documentation: The name of the env(ironment) module that loads the Apptainer executable into `$PATH`. This is typically only relevant in HPC environments. Apptainer is the successor of Singularity and needed to execute containerized tools. The template uses this variable if CUBI-style reference containers are used.
-2. ENV_MODULE_SINGULARITY
-    - datatype: <class 'str'>
-    - documentation: The name of the env(ironment) module that loads the Singularity executable into `$PATH`. This is typically only relevant in HPC environments. Note that Singularity is deprecated and has been replaced by Apptainer. The template uses this variable if CUBI-style reference containers are used.
+
+## Module: commons::05_docgen.smk
+
+**Module file**: `workflow/rules/commons/05_docgen.smk`
+
+### Documentation level: OBJMETHOD
+
+1. add_module_doc
+    - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
+    - documentation: 
+```
+    This member function must be called at the beginning
+    of each new module to record the documentation
+    in the correct module file context.
+
+    Args:
+        doc_context (DocContext): documentation context enum type
+        module_name (str or list of str): name of the module given as relative path
+
+    Returns:
+        None
+```
 
 ## Module: commons::30-settings::10-runtime::00_snakemake.smk
 
@@ -196,40 +229,54 @@
 5. DIR_GLOBAL_REF
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `global_ref` in the `WORKDIR`. This default directory is the source location for all reference data files that are *not* being produced by the workflow itself.
-6. DIR_LOCAL_REF
-    - datatype: <class 'pathlib.PosixPath'>
-    - documentation: Relative path pointing to `local_ref` in the `WORKDIR`. This default directory is the target and source location for all reference data files that are produced programmatically by the workflow itself. In other words, for each file in `local_ref`, there must be a rule in the workflow that produces that file.
-7. DIR_LOG
+
+## Module: commons::30-settings::00-infrastructure::10_software.smk
+
+**Module file**: `workflow/rules/commons/30-settings/00-infrastructure/10_software.smk`
+
+### Documentation level: DEVONLY
+
+1. ENV_MODULE_SINGULARITY
+    - datatype: <class 'str'>
+    - documentation: The name of the env(ironment) module that loads the Singularity executable into `$PATH`. This is typically only relevant in HPC environments. Note that Singularity is deprecated and has been replaced by Apptainer. The template uses this variable if CUBI-style reference containers are used.
+
+## Module: commons::30-settings::20-environment::05_paths.smk
+
+**Module file**: `workflow/rules/commons/30-settings/20-environment/05_paths.smk`
+
+### Documentation level: GLOBALVAR
+
+1. DIR_LOG
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `log` in the `WORKDIR`. All log files of the workflow can be addressed via `DIR_LOG.joinpath(...)` in Snakemake rules.
-8. DIR_PROC
+2. DIR_PROC
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `proc` in the `WORKDIR`. All non-result files of the workflow can be addressed via `DIR_PROC.joinpath(...)` in Snakemake rules.
-9. DIR_REPO
+3. DIR_REPO
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Recommended alias/shorthand for `DIR_REPOSITORY`, i.e. the fully resolved directory path to the workflow repository. By convention, this is always taken to be the parent of the `workflow/` directory.
-10. DIR_RES
+4. DIR_RES
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `results` in the `WORKDIR`. All result files of the workflow can be addressed via `DIR_RES.joinpath(...)` in Snakemake rules.
-11. DIR_RSRC
+5. DIR_RSRC
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `rsrc` in the `WORKDIR`. All resource ('benchmark') files of the workflow can be addressed via `DIR_LOG.joinpath(...)` in Snakemake rules.
-12. DIR_SCRIPTS
+6. DIR_SCRIPTS
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved directory path to `[..]/workflow/scripts`. Any script used by the workflow can thus be addressed via `DIR_SCRIPTS.joinpath(...)`. See also the `get_script` function.
-13. DIR_SNAKEFILE
+7. DIR_SNAKEFILE
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved directory path in which the workflow's main snakefile resides. By convention, this path always ends with the last component `workflow/`.
-14. DIR_WORKING
+8. DIR_WORKING
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Recommended global variable representing the fully resolved path to the Snakemake working directory, i.e. the content of the `--directory` / `-d` command line parameter. **CAUTION**: this parameter should only be used if absolutely necessary. All relevant directory paths should be addressed via the other global variables of this module.
-15. NAME_SNAKEFILE
+9. NAME_SNAKEFILE
     - datatype: <class 'str'>
     - documentation: Name of the workflow's main snakefile, which is always `Snakefile` by convention / best practices.
-16. PATH_SNAKEFILE
+10. PATH_SNAKEFILE
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved file path of the workflow's main snakefile.
-17. WORKDIR
+11. WORKDIR
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Alias/shorthand for `DIR_WORKING`.
 
@@ -252,15 +299,13 @@
     Original version of 'get_script'.
 
     DEPRECATED FUNCTION --- see 'get_script'
-    
 ```
 2. get_hostname
     - datatype: <class 'function'>
     - documentation: 
 ```
     Returns:
-        host (str): name of host machine
-    
+    host (str): name of host machine
 ```
 3. get_script
     - datatype: <class 'function'>
@@ -271,23 +316,21 @@
     a 'params' block, i.e.:
 
     rule rule_with_script:
-            [...]
-        params:
-            script = get_script("script_name")
-        shell:
-            '{params.script} [...do scripted task...]'
+        [...]
+    params:
+        script = get_script("script_name")
+    shell:
+        '{params.script} [...do scripted task...]'
 
     Args:
-        script_name (str): file name of the script to be located
-        extension (str): file extension of the script to be locate; default 'py'
+    script_name (str): file name of the script to be located
+    extension (str): file extension of the script to be locate; default 'py'
 
     Returns:
-        selected_script (str): full path to script file
+    selected_script (str): full path to script file
 
     Raises:
-        ValueError: no script or more than one match found
-
-    
+    ValueError: no script or more than one match found
 ```
 4. get_timestamp
     - datatype: <class 'function'>
@@ -301,16 +344,14 @@
     (24-hour format for time)
 
     Returns:
-        ts (str): timestamp of 'now' w/o tz
-    
+    ts (str): timestamp of 'now' w/o tz
 ```
 5. get_username
     - datatype: <class 'function'>
     - documentation: 
 ```
     Returns:
-        user (str): login name of current user
-    
+    user (str): login name of current user
 ```
 
 ## Module: commons::40-pyutils::15_simple_logging.smk
@@ -324,14 +365,12 @@
     - documentation: 
 ```
     Alias for 'loggerr'
-    
 ```
 2. log_out
     - datatype: <class 'function'>
     - documentation: 
 ```
     Alias for 'logout'
-    
 ```
 3. logerr
     - datatype: <class 'function'>
@@ -344,11 +383,10 @@
     prefixed with the current timestamp.
 
     Args:
-        msg (str): message text
+    msg (str): message text
 
     Returns:
-        None
-    
+    None
 ```
 4. logout
     - datatype: <class 'function'>
@@ -359,11 +397,10 @@
     the current timestamp.
 
     Args:
-        msg (str): message text
+    msg (str): message text
 
     Returns:
-        None
-    
+    None
 ```
 5. write_log_message
     - datatype: <class 'function'>
@@ -378,13 +415,12 @@
     WARNING, DEBUG and so on but is not sanity-checked.
 
     Args:
-        stream (object): must support write method
-        level (str): informative severity level
-        message (str): the message to be logged
+    stream (object): must support write method
+    level (str): informative severity level
+    message (str): the message to be logged
 
     Returns:
-        None
-    
+    None
 ```
 
 ## Module: commons::40-pyutils::85_template_accounting.smk
@@ -402,10 +438,9 @@
     on disk.
 
     Args:
-        file_path: path to metadata file, i.e. *.md5 / *.bytes / *.sha256
+    file_path: path to metadata file, i.e. *.md5 / *.bytes / *.sha256
     Returns:
-        str: the respective metadata value, i.e. a checksum or file size
-    
+    str: the respective metadata value, i.e. a checksum or file size
 ```
 2. load_accounting_information
     - datatype: <class 'function'>
@@ -416,15 +451,13 @@
     (relevant for checksum and size files).
 
     Args:
-        wildcards: required argument because the function
-        is called as an input function of a Snakemake rule;
-        wildcards are not processed in this function
-        (constant output)
+    wildcards: required argument because the function
+    is called as an input function of a Snakemake rule;
+    wildcards are not processed in this function
+    (constant output)
     Returns:
-        List[str] : the file paths of the three
-        accounting files (input, reference and results)
-
-    
+    List[str] : the file paths of the three
+    accounting files (input, reference and results)
 ```
 3. load_file_by_path_id
     - datatype: <class 'function'>
@@ -435,13 +468,12 @@
     files.
 
     Args:
-        wildcards: contains the wildcards to select
-            the correct account type (input, reference, result)
-            and the path ID that uniquely identifies
-            the file.
+    wildcards: contains the wildcards to select
+        the correct account type (input, reference, result)
+        and the path ID that uniquely identifies
+        the file.
     Returns:
-        str: source file path
-    
+    str: source file path
 ```
 4. process_accounting_record
     - datatype: <class 'function'>
@@ -453,12 +485,11 @@
     checksum / size / file metadata such as name.
 
     Args:
-        line: a string line from an accounting file
+    line: a string line from an accounting file
     Returns:
-        str, dict: the path ID (= unique file key) and
-            the collected metadata such as the file
-            checksum or size
-    
+    str, dict: the path ID (= unique file key) and
+        the collected metadata such as the file
+        checksum or size
 ```
 5. register_input
     - datatype: <class 'function'>
@@ -474,10 +505,10 @@
     form:
 
     rule some_rule_name:
-        input:
-            ...
-        params:
-            acc_in=lambda wildcards, input: register_input(input)
+    input:
+        ...
+    params:
+        acc_in=lambda wildcards, input: register_input(input)
 
     The above would register all files of the 'input' object
     as workflow input files and compute checksums and file sizes
@@ -502,15 +533,14 @@
     is only created after execution.
 
     Args:
-        args (any): a file path or a potentially nested object
-            containing many file paths to be registered as
-            workflow input files.
-        allow_non_existing (bool): do not raise for non-existent files
+    args (any): a file path or a potentially nested object
+        containing many file paths to be registered as
+        workflow input files.
+    allow_non_existing (bool): do not raise for non-existent files
 
     Returns:
-        None: must be constant to avoid rerun triggers
-            because of changing rule parameters.
-    
+    None: must be constant to avoid rerun triggers
+        because of changing rule parameters.
 ```
 6. register_reference
     - datatype: <class 'function'>
@@ -522,14 +552,12 @@
     these two categories and so do we.
 
     Args:
-        args (any): a file path or a potentially nested object
-            containing many file paths to be registered as
-            workflow input files.
+    args (any): a file path or a potentially nested object
+        containing many file paths to be registered as
+        workflow input files.
     Returns:
-        None: must be constant to avoid rerun triggers
-            because of changing rule parameters.
-
-    
+    None: must be constant to avoid rerun triggers
+        because of changing rule parameters.
 ```
 7. register_result
     - datatype: <class 'function'>
@@ -541,14 +569,12 @@
     these two categories and so do we.
 
     Args:
-        args (any): a file path or a potentially nested object
-            containing many file paths to be registered as
-            workflow input files.
+    args (any): a file path or a potentially nested object
+        containing many file paths to be registered as
+        workflow input files.
     Returns:
-        None: must be constant to avoid rerun triggers
-            because of changing rule parameters.
-
-    
+    None: must be constant to avoid rerun triggers
+        because of changing rule parameters.
 ```
 
 ## Module: commons::40-pyutils::90_template_staging.smk
@@ -590,10 +616,18 @@
     it may obscrue errors).
 
     Args:
-        <none>
+    <none>
     Returns:
-        <none>
-
-    
+    <none>
 ```
+
+## Module: commons::30-settings::20-environment::05_paths.smk
+
+**Module file**: `workflow/rules/commons/30-settings/20-environment/05_paths.smk`
+
+### Documentation level: GLOBALVAR
+
+1. DIR_LOCAL_REF
+    - datatype: <class 'pathlib.PosixPath'>
+    - documentation: Relative path pointing to `local_ref` in the `WORKDIR`. This default directory is the target and source location for all reference data files that are produced programmatically by the workflow itself. In other words, for each file in `local_ref`, there must be a rule in the workflow that produces that file.
 

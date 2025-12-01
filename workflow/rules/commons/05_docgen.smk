@@ -81,7 +81,11 @@ class DocRecorder:
 
         smk_files = set(self.repository.glob("**/*.smk"))
         snake_files = set(self.repository.glob("**/*.snakefile"))
-        self.module_files = sorted(smk_files.union(snake_files))
+        main_snakefile = set(self.repository.glob("**/Snakefile"))
+        assert len(main_snakefile) == 1, (
+            f"Ambiguous path resolution for main Snakefile: {main_snakefile}"
+        )
+        self.module_files = sorted(smk_files.union(snake_files, main_snakefile))
         assert self.module_files
         return
 
@@ -114,6 +118,34 @@ class DocRecorder:
         self._docgen_last_level = None
         self._docgen_member_level_counter = 0
         return
+
+    def _harmonize_docstring(self, docstring):
+        """
+        """
+        uniform_docstring = "<NEWLINE><4SINDENT>" + docstring.strip() + "<NEWLINE>"
+        special_replace = {"\t": "<TAB>", "\n": "<NEWLINE>"}
+        uniform_docstring = uniform_docstring.replace(
+            "\t", "<TAB>"
+        ).replace(
+            "\n", "<NEWLINE>"
+        ).replace(
+            "    ", "<4SINDENT>"
+        )
+
+        # reduce by one level of indentation
+        uniform_docstring = uniform_docstring.replace(
+            "<NEWLINE><4SINDENT><4SINDENT>", "<NEWLINE><4SINDENT>"
+        )
+
+        uniform_docstring = uniform_docstring.replace(
+            "<NEWLINE>", "\n"
+        ).replace(
+            "<TAB>", "\t"
+        ).replace(
+            "<4SINDENT>", "    "
+        )
+
+        return uniform_docstring
 
     def add_module_doc(self, doc_context, module_name):
         """
@@ -168,13 +200,24 @@ class DocRecorder:
             None
 
         Raises:
-            ValueError: if doc_level in [DocLevel.OBJMETHOD, DocLevel.GLOBALFUN]
+            ValueError: if doc_level in [
+                DocLevel.OBJMETHOD
+                DocLevel.GLOBALFUN
+                DocLevel.TARGETRULE
+            ]
         """
         assert isinstance(doc_level, DocLevel)
         if doc_level in [DocLevel.OBJMETHOD, DocLevel.GLOBALFUN]:
             err_msg = (
                 "Doc error: use DOCREC.add_function_doc(...) to "
                 "document class methods or global function: "
+                f"{doc_level.name} - {name} - {documentation}"
+            )
+            raise ValueError(err_msg)
+        if doc_level in [DocLevel.TARGETRULE]:
+            err_msg = (
+                "Doc error: use DOCREC.add_rule_doc(...) to "
+                "document workflow rules: "
                 f"{doc_level.name} - {name} - {documentation}"
             )
             raise ValueError(err_msg)
@@ -205,7 +248,8 @@ class DocRecorder:
             datatype = f"{parent_type}.{datatype}"
         else:
             doc_level = DocLevel.GLOBALFUN
-        docstring = f"\n```{function.__doc__}\n```"  # embed in Markdown code block
+        harmonized_docstring = self._harmonize_docstring(function.__doc__)
+        docstring = f"\n```{harmonized_docstring}```"  # embed in Markdown code block
         member_doc = MemberDoc(doc_level.value, function.__name__, datatype, docstring)
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
@@ -228,7 +272,8 @@ class DocRecorder:
         assert isinstance(rule, snakemake.rules.Rule), f"Expect Rule object, not {type(rule)}"
         datatype = str(type(rule))
         doc_level = DocLevel.TARGETRULE
-        docstring = f"\n```{rule.docstring}\n```"  # embed in Markdown code block
+        harmonized_docstring = self._harmonize_docstring(rule.docstring)
+        docstring = f"\n```{harmonized_docstring}```"  # embed in Markdown code block
         member_doc = MemberDoc(doc_level.value, rule.name, datatype, docstring)
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
