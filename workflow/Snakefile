@@ -32,11 +32,15 @@ rule run_all:
 
 
 rule run_all_no_manifest:
-    """ Rule added for the
-    unexpected case that no
-    manifest file shall be
-    created (e.g., testing)
-    Part of gh#15 fix.
+    """
+    This rule is an alternative target to the
+    'run_all' rule that triggers the same series
+    of rule executions except for NOT creating
+    the workflow manifest file. Use this rule
+    as target in case of problems with creating
+    the workflow manifest file.
+    For more details, see the documentation
+    of the rule 'run_all'.
     """
     input:
         RUN_CONFIG_RELPATH,
@@ -45,6 +49,21 @@ rule run_all_no_manifest:
 
 
 rule run_tests:
+    """
+    This rule triggers executing the testing
+    module of the workflow template located in
+    rules::commons::99-testing::*
+    The tests must succeed in all environments
+    (e.g., local/laptop or managed/HPC cluster)
+    unless explicitly designed for failure. Note
+    that running the tests only checks for a working
+    Snakemake setup and complete template because
+    the 'include' of any workflow-specific
+    (= non-template) modules is skipped.
+    The other targets of this rule are identical
+    to the 'run_all' rule; see that documentation
+    for details.
+    """
     input:
         RUN_CONFIG_RELPATH,
         COPY_SAMPLE_SHEET_RELPATH,
@@ -53,6 +72,12 @@ rule run_tests:
 
 
 rule run_tests_no_manifest:
+    """
+    The analogous rule to 'run_all_no_manifest'
+    for running the tests w/o creating a file
+    manifest. See the documentation of
+    'run_all_no_manifest' for details.
+    """
     input:
         RUN_CONFIG_RELPATH,
         COPY_SAMPLE_SHEET_RELPATH,
@@ -60,6 +85,14 @@ rule run_tests_no_manifest:
 
 
 rule run_build_docs:
+    """
+    Target this rule to update the auto-generated
+    documentation. This only updates the files:
+    docs/template/autodoc.md - template dev only
+    docs/workflow/autodoc.md - workflow dev only
+    This rule has no file input dependencies and
+    can always be executed.
+    """
     retries: 0
     run:
         global DOC_RECORDER
@@ -100,3 +133,12 @@ _THIS_CONTEXT = DocContext.TEMPLATE
 DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
 
 DOCREC.add_rule_doc(rules.run_all.rule)
+
+DOCREC.add_rule_doc(rules.run_all_no_manifest.rule)
+
+DOCREC.add_rule_doc(rules.run_build_docs.rule)
+
+DOCREC.add_rule_doc(rules.run_tests.rule)
+
+DOCREC.add_rule_doc(rules.run_tests_no_manifest.rule)
+

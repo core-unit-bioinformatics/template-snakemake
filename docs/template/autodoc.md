@@ -22,6 +22,57 @@
     workflow outputs (files). This list is created in the module
     rules::commons::99_aggregate.smk
 ```
+2. run_all_no_manifest
+    - datatype: <class 'snakemake.rules.Rule'>
+    - documentation: 
+```
+    This rule is an alternative target to the
+    'run_all' rule that triggers the same series
+    of rule executions except for NOT creating
+    the workflow manifest file. Use this rule
+    as target in case of problems with creating
+    the workflow manifest file.
+    For more details, see the documentation
+    of the rule 'run_all'.
+```
+3. run_build_docs
+    - datatype: <class 'snakemake.rules.Rule'>
+    - documentation: 
+```
+    Target this rule to update the auto-generated
+    documentation. This only updates the files:
+    docs/template/autodoc.md - template dev only
+    docs/workflow/autodoc.md - workflow dev only
+    This rule has no file input dependencies and
+    can always be executed.
+```
+4. run_tests
+    - datatype: <class 'snakemake.rules.Rule'>
+    - documentation: 
+```
+    This rule triggers executing the testing
+    module of the workflow template located in
+    rules::commons::99-testing::*
+    The tests must succeed in all environments
+    (e.g., local/laptop or managed/HPC cluster)
+    unless explicitly designed for failure. Note
+    that running the tests only checks for a working
+    Snakemake setup and complete template because
+    the 'include' of any workflow-specific
+    (= non-template) modules is skipped.
+    The other targets of this rule are identical
+    to the 'run_all' rule; see that documentation
+    for details.
+```
+5. run_tests_no_manifest
+    - datatype: <class 'snakemake.rules.Rule'>
+    - documentation: 
+```
+    The analogous rule to 'run_all_no_manifest'
+    for running the tests w/o creating a file
+    manifest. See the documentation of
+    'run_all_no_manifest' for details.
+```
 
 ## Module: commons::05_docgen.smk
 
@@ -29,13 +80,16 @@
 
 ### Documentation level: GLOBALOBJ
 
-1. DOC_RECORDER
-    - datatype: <class 'snakemake.workflow.DocRecorder'>
-    - documentation: Instance of the `DocRecorder` class that is globally available to record documentation *in place*. The DocRecorder class has three member functions to record documentation about 'objects' (in the Python sense) in module contexts. At the beginning of each module, call the function `DOC_RECORDER.add_module_doc(...)` to start a new module context. After that, call the function `DOC_RECORDER.add_member_doc(...)` for each member (everything except functions/methods) of the module that you want to document. For functions and object methods, call `DOC_RECORDER.add_function_doc(...)`. The documentation is dumped as a Markdown file and thus supports (basic) Markdown syntax for emphasis etc. In order to generate the documentation, execute the workflow with the target rule `run_build_docs`.
-2. DOCREC
+1. DOCREC
     - datatype: <class 'snakemake.workflow.DocRecorder'>
     - documentation: Alias/short hand for DOC_RECORDER.
-3. DocLevel
+2. DOC_RECORDER
+    - datatype: <class 'snakemake.workflow.DocRecorder'>
+    - documentation: Instance of the `DocRecorder` class that is globally available to record documentation *in place*. The DocRecorder class has three member functions to record documentation about 'objects' (in the Python sense) in module contexts. At the beginning of each module, call the function `DOC_RECORDER.add_module_doc(...)` to start a new module context. After that, call the function `DOC_RECORDER.add_member_doc(...)` for each member (everything except functions/methods) of the module that you want to document. For functions and object methods, call `DOC_RECORDER.add_function_doc(...)`. The documentation is dumped as a Markdown file and thus supports (basic) Markdown syntax for emphasis etc. In order to generate the documentation, execute the workflow with the target rule `run_build_docs`.
+3. DocContext
+    - datatype: <class 'enum.EnumType'>
+    - documentation: Enum listing the different documentation contexts. The context is used to sort the dumped documentation Markdown file into `docs/<context>/autodoc.md`. The currently supported contexts are: (1) TEMPLATE; (2) WORKFLOW
+4. DocLevel
     - datatype: <class 'enum.EnumType'>
     - documentation: Enum listing the different documentation levels such as USERCONFIG and GLOBALVAR that need to be specified when documenting module 'members' and 'functions'. See documentation of the DOC_RECORDER object for more details. The currently supported levels are: (1) USERCONFIG; (2) TARGETRULE; (3) GLOBALVAR; (4) GLOBALFUN; (5) GLOBALOBJ; (6) OBJMETHOD; (7) DEVONLY
 
@@ -83,16 +137,22 @@
             DocLevel.TARGETRULE
         ]
 ```
+3. add_module_doc
+    - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
+    - documentation: 
+```
+    This member function must be called at the beginning
+    of each new module to record the documentation
+    in the correct module file context.
 
-### Documentation level: GLOBALOBJ
+    Args:
+        doc_context (DocContext): documentation context enum type
+        module_name (str or list of str): name of the module given as relative path
 
-1. DocContext
-    - datatype: <class 'enum.EnumType'>
-    - documentation: Enum listing the different documentation contexts. The context is used to sort the dumped documentation Markdown file into `docs/<context>/autodoc.md`. The currently supported contexts are: (1) TEMPLATE; (2) WORKFLOW
-
-### Documentation level: OBJMETHOD
-
-1. add_rule_doc
+    Returns:
+        None
+```
+4. add_rule_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
     - documentation: 
 ```
@@ -148,28 +208,9 @@
 1. ENV_MODULE_APPTAINER
     - datatype: <class 'str'>
     - documentation: The name of the env(ironment) module that loads the Apptainer executable into `$PATH`. This is typically only relevant in HPC environments. Apptainer is the successor of Singularity and needed to execute containerized tools. The template uses this variable if CUBI-style reference containers are used.
-
-## Module: commons::05_docgen.smk
-
-**Module file**: `workflow/rules/commons/05_docgen.smk`
-
-### Documentation level: OBJMETHOD
-
-1. add_module_doc
-    - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
-```
-    This member function must be called at the beginning
-    of each new module to record the documentation
-    in the correct module file context.
-
-    Args:
-        doc_context (DocContext): documentation context enum type
-        module_name (str or list of str): name of the module given as relative path
-
-    Returns:
-        None
-```
+2. ENV_MODULE_SINGULARITY
+    - datatype: <class 'str'>
+    - documentation: The name of the env(ironment) module that loads the Singularity executable into `$PATH`. This is typically only relevant in HPC environments. Note that Singularity is deprecated and has been replaced by Apptainer. The template uses this variable if CUBI-style reference containers are used.
 
 ## Module: commons::30-settings::10-runtime::00_snakemake.smk
 
@@ -229,54 +270,40 @@
 5. DIR_GLOBAL_REF
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `global_ref` in the `WORKDIR`. This default directory is the source location for all reference data files that are *not* being produced by the workflow itself.
-
-## Module: commons::30-settings::00-infrastructure::10_software.smk
-
-**Module file**: `workflow/rules/commons/30-settings/00-infrastructure/10_software.smk`
-
-### Documentation level: DEVONLY
-
-1. ENV_MODULE_SINGULARITY
-    - datatype: <class 'str'>
-    - documentation: The name of the env(ironment) module that loads the Singularity executable into `$PATH`. This is typically only relevant in HPC environments. Note that Singularity is deprecated and has been replaced by Apptainer. The template uses this variable if CUBI-style reference containers are used.
-
-## Module: commons::30-settings::20-environment::05_paths.smk
-
-**Module file**: `workflow/rules/commons/30-settings/20-environment/05_paths.smk`
-
-### Documentation level: GLOBALVAR
-
-1. DIR_LOG
+6. DIR_LOCAL_REF
+    - datatype: <class 'pathlib.PosixPath'>
+    - documentation: Relative path pointing to `local_ref` in the `WORKDIR`. This default directory is the target and source location for all reference data files that are produced programmatically by the workflow itself. In other words, for each file in `local_ref`, there must be a rule in the workflow that produces that file.
+7. DIR_LOG
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `log` in the `WORKDIR`. All log files of the workflow can be addressed via `DIR_LOG.joinpath(...)` in Snakemake rules.
-2. DIR_PROC
+8. DIR_PROC
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `proc` in the `WORKDIR`. All non-result files of the workflow can be addressed via `DIR_PROC.joinpath(...)` in Snakemake rules.
-3. DIR_REPO
+9. DIR_REPO
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Recommended alias/shorthand for `DIR_REPOSITORY`, i.e. the fully resolved directory path to the workflow repository. By convention, this is always taken to be the parent of the `workflow/` directory.
-4. DIR_RES
+10. DIR_RES
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `results` in the `WORKDIR`. All result files of the workflow can be addressed via `DIR_RES.joinpath(...)` in Snakemake rules.
-5. DIR_RSRC
+11. DIR_RSRC
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `rsrc` in the `WORKDIR`. All resource ('benchmark') files of the workflow can be addressed via `DIR_LOG.joinpath(...)` in Snakemake rules.
-6. DIR_SCRIPTS
+12. DIR_SCRIPTS
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved directory path to `[..]/workflow/scripts`. Any script used by the workflow can thus be addressed via `DIR_SCRIPTS.joinpath(...)`. See also the `get_script` function.
-7. DIR_SNAKEFILE
+13. DIR_SNAKEFILE
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved directory path in which the workflow's main snakefile resides. By convention, this path always ends with the last component `workflow/`.
-8. DIR_WORKING
+14. DIR_WORKING
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Recommended global variable representing the fully resolved path to the Snakemake working directory, i.e. the content of the `--directory` / `-d` command line parameter. **CAUTION**: this parameter should only be used if absolutely necessary. All relevant directory paths should be addressed via the other global variables of this module.
-9. NAME_SNAKEFILE
+15. NAME_SNAKEFILE
     - datatype: <class 'str'>
     - documentation: Name of the workflow's main snakefile, which is always `Snakefile` by convention / best practices.
-10. PATH_SNAKEFILE
+16. PATH_SNAKEFILE
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Fully resolved file path of the workflow's main snakefile.
-11. WORKDIR
+17. WORKDIR
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Alias/shorthand for `DIR_WORKING`.
 
@@ -620,14 +647,4 @@
     Returns:
     <none>
 ```
-
-## Module: commons::30-settings::20-environment::05_paths.smk
-
-**Module file**: `workflow/rules/commons/30-settings/20-environment/05_paths.smk`
-
-### Documentation level: GLOBALVAR
-
-1. DIR_LOCAL_REF
-    - datatype: <class 'pathlib.PosixPath'>
-    - documentation: Relative path pointing to `local_ref` in the `WORKDIR`. This default directory is the target and source location for all reference data files that are produced programmatically by the workflow itself. In other words, for each file in `local_ref`, there must be a rule in the workflow that produces that file.
 
