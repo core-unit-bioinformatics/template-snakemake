@@ -19,8 +19,23 @@ class DocContext(enum.Enum):
     TEMPLATE = 1
     WORKFLOW = 2
 
-_DOC_CONTEXT_MEMBER_STRING = "; ".join(
-    [f"({member.value}) {member.name}" for member in DocContext]
+
+class DocContextHelp(enum.Enum):
+    TEMPLATE = (
+        "The TEMPLATE context must only "
+        "be used to document code of the "
+        "workflow template."
+    )
+    WORKFLOW = (
+        "The WORKFLOW context must only "
+        "be used to document workflow code "
+        "outside of the template modules "
+        "rules, functions, variables etc."
+    )
+
+
+_DOC_CONTEXT_MEMBER_STRING = " ".join(
+    [f"**({member.value}) {member.name}**: {DocContextHelp[member.name].value}" for member in DocContext]
 )
 
 
@@ -33,8 +48,66 @@ class DocLevel(enum.Enum):
     OBJMETHOD = 6
     DEVONLY = 7
 
-_DOC_LEVEL_MEMBER_STRING = "; ".join(
-    [f"({member.value}) {member.name}" for member in DocLevel]
+
+class DocLevelHelp(enum.Enum):
+    USERCONFIG = (
+        "Use this level to document (non-template) "
+        "workflow parameters that can be configured by "
+        "end users, e.g., by adding a YAML config file "
+        "via `--configfiles` to the Snakemake run."
+    )
+    TARGETRULE = (
+        "This is an implicit DocLevel that is automatically "
+        "set when documenting a rule via "
+        "`DOCREC.add_rule_doc(...)`. Do not use this "
+        "level in any other way. "
+        "This level indicates recommended Snakemake "
+        "rules to be used as execution targets, "
+        "including generic rules such as `run_all`."
+    )
+    GLOBALVAR = (
+        "Use this level to document globally accessible "
+        "variables; this also includes many variables "
+        "initiated as part of the workflow template. "
+        "Workflow developers must rely on the global "
+        "template variables when implementing a new "
+        "workflow."
+    )
+    GLOBALFUN = (
+        "This is an implicit DocLevel that is automatically "
+        "set when documenting a [Python] function via "
+        "`DOCREC.add_function_doc(...)`. Do not use this "
+        "level in any other way. "
+        "This level indicates a globally accessible "
+        "[Python] function, including utility-style "
+        "functions shipped with the template."
+    )
+    GLOBALOBJ = (
+        "Use this level to document globally available "
+        "[Python] objects that offer specific funtionality. "
+        "The most useful example for this is the `DOCREC` "
+        "(DocRecorder) object that must be used to document "
+        "other workflow components in place."
+    )
+    OBJMETHOD = (
+        "This is an implicit DocLevel that is automatically "
+        "set when documenting a [Python] function via "
+        "`DOCREC.add_function_doc(...)`. Do not use this "
+        "level in any other way. "
+        "This level indicates an object method, e.g., "
+        "the `DOCREC.add_function_doc(...)` or "
+        "`DOCREC.add_rule_doc(...)` methods fall under "
+        "this documentation level."
+    )
+    DEVONLY = (
+        "Use this level to document 'things' in the workflow "
+        "that a regular user does not need to understand, "
+        "but developers must pay attention to."
+    )
+
+
+_DOC_LEVEL_MEMBER_STRING = " ".join(
+    [f"**({member.value}) {member.name}**: {DocLevelHelp[member.name].value}" for member in DocLevel]
 )
 
 
@@ -395,8 +468,8 @@ DOCREC.add_member_doc(
     (
         "Enum listing the different documentation levels "
         "such as USERCONFIG and GLOBALVAR that need to be "
-        "specified when documenting module 'members' and "
-        "'functions'. See documentation of the DOC_RECORDER "
+        "specified when documenting module 'members', 'rules', "
+        "'functions' and so on. See documentation of the DOC_RECORDER "
         "object for more details. The currently supported "
         "levels are: "
         f"{_DOC_LEVEL_MEMBER_STRING}"
@@ -410,15 +483,16 @@ DOCREC.add_member_doc(
     (
         "Instance of the `DocRecorder` class that is globally "
         "available to record documentation *in place*. "
-        "The DocRecorder class has three member functions to "
+        "The DocRecorder class has *four* member functions to "
         "record documentation about 'objects' (in the Python sense) "
         "in module contexts. At the beginning of each module, "
-        "call the function `DOC_RECORDER.add_module_doc(...)` "
+        "call the function **(1)** `DOC_RECORDER.add_module_doc(...)` "
         "to start a new module context. After that, call the "
-        "function `DOC_RECORDER.add_member_doc(...)` for each "
-        "member (everything except functions/methods) of "
+        "function **(2)** `DOC_RECORDER.add_member_doc(...)` for each "
+        "member (everything except functions/methods and rules) of "
         "the module that you want to document. For functions "
-        "and object methods, call `DOC_RECORDER.add_function_doc(...)`. "
+        "and object methods, call **(3)** `DOC_RECORDER.add_function_doc(...)`. "
+        "For Snakamake rules, call **(4)** `DOC_RECORDER.add_rule_doc(...)`."
         "The documentation is dumped as a Markdown file and "
         "thus supports (basic) Markdown syntax for emphasis etc. "
         "In order to generate the documentation, execute the "
