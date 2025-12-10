@@ -26,12 +26,12 @@ DOCREC.add_member_doc(
         "The number of CPU cores/threads to use for rules "
         "benefitting from limited parallelization. Typical "
         "values are in the range of 2 to 6. Workflow developers "
-        "refer to this value in the 'threads' directive "
+        "refer to this value in the `threads:` directive "
         "of the relevant rules. Users can dynamically "
         "change this value via the command line, i.e. "
         "by setting --config cpu_low=N or by adding the "
-        "entry cpu_low: N to any of the Snakemake YAML "
-        "configuration files read via --configfiles."
+        "entry `cpu_low: N` to any of the Snakemake YAML "
+        "configuration files read via `--configfiles`."
     )
 )
 
