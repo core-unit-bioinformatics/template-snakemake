@@ -13,6 +13,12 @@ used for reference containers.
 import re
 
 
+_THIS_MODULE = ["commons", "30-settings", "20-environment", "10_file_constants.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
+
+
 # Default for the run suffix is >derive< behavior
 RUN_SUFFIX = config.get(OPTIONS.suffix.name, OPTIONS.suffix.default)
 
@@ -64,6 +70,25 @@ if RUN_SUFFIX:
     RUN_SUFFIX = f".{RUN_SUFFIX}"
 
 
+DOCREC.add_member_doc(
+    DocLevel.USERCONFIG,
+    "RUN_SUFFIX",
+    RUN_SUFFIX,
+    (
+        "You can set a 'suffix' string for this run that will "
+        "be appended to the run manifest file and the copy of "
+        "the sample sheet (if applicable): "
+        "`snakemake [...]` --config suffix=yoursuffix` "
+        "This enables you, e.g., to distinguish between different "
+        "sample sets that you process in the same workflow directory. "
+        "The default value 'derive' triggers a dynamic suffix derived "
+        "from the file name of the sample sheet if used or is empty "
+        "otherwise. The run suffix must only contain lower case "
+        "letters a-z, number 0-9 and the hyphen/minus '-' sign."
+    )
+)
+
+
 ##############################
 # Settings of fixed file names
 # (modulo the run suffix) for
@@ -81,3 +106,27 @@ MANIFEST_ABSPATH = DIR_WORKING.joinpath(
     CONST_FILES.manifest.with_suffix(f"{RUN_SUFFIX}.tsv")
 ).resolve(strict=False)
 MANIFEST_RELPATH = MANIFEST_ABSPATH.relative_to(DIR_WORKING)
+
+
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "RUN_CONFIG_RELPATH",
+    RUN_CONFIG_RELPATH,
+    (
+        "Relative path to the copy of the workflow configuration YAML "
+        "that is placed in the results folder. This is only used as a "
+        "trigger file in the rules of the main Snakefile."
+    )
+)
+
+
+DOCREC.add_member_doc(
+    DocLevel.DEVONLY,
+    "MANIFEST_RELPATH",
+    MANIFEST_RELPATH,
+    (
+        "Relative path to the workflow manifest file that is created "
+        "in the results folder. This is only used as a trigger file "
+        "in the rules of the main Snakefile."
+    )
+)

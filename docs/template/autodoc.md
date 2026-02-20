@@ -313,6 +313,25 @@
     - datatype: <class 'bool'>
     - documentation: If the workflow is executed with `--config devmode=True`, non-existing default paths are ignored and do not raise an error.
 
+## Module: commons::30-settings::20-environment::10_file_constants.smk
+
+**Module file**: `workflow/rules/commons/30-settings/20-environment/10_file_constants.smk`
+
+### Documentation level: USERCONFIG
+
+1. RUN_SUFFIX
+    - datatype: <class 'str'>
+    - documentation: You can set a 'suffix' string for this run that will be appended to the run manifest file and the copy of the sample sheet (if applicable): `snakemake [...]` --config suffix=yoursuffix` This enables you, e.g., to distinguish between different sample sets that you process in the same workflow directory. The default value 'derive' triggers a dynamic suffix derived from the file name of the sample sheet if used or is empty otherwise. The run suffix must only contain lower case letters a-z, number 0-9 and the hyphen/minus '-' sign.
+
+### Documentation level: DEVONLY
+
+1. MANIFEST_RELPATH
+    - datatype: <class 'pathlib.PosixPath'>
+    - documentation: Relative path to the workflow manifest file that is created in the results folder. This is only used as a trigger file in the rules of the main Snakefile.
+2. RUN_CONFIG_RELPATH
+    - datatype: <class 'pathlib.PosixPath'>
+    - documentation: Relative path to the copy of the workflow configuration YAML that is placed in the results folder. This is only used as a trigger file in the rules of the main Snakefile.
+
 ## Module: commons::40-pyutils::05_simple_get.smk
 
 **Module file**: `workflow/rules/commons/40-pyutils/05_simple_get.smk`
