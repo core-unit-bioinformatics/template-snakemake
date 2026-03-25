@@ -13,12 +13,26 @@ import pathlib
 import subprocess
 
 
+_THIS_MODULE = ["commons", "40-pyutils", "20_simple_fs.smk"]
+_THIS_CONTEXT = DocContext.TEMPLATE
+
+DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
+
+
 def rsync_f2d(source_file, target_dir):
     """
     Convenience function to 'rsync' a source
     file into a target directory (file name
     not changed) in a 'run' block of a
-    Snakemake rule.
+    Snakemake rule. Creates necessary
+    subdirectories for target.
+
+    Args:
+        source_file (str | pathlib.Path): the source file path
+        target_dir (str | pathlib.Path): the target directory
+
+    Returns:
+        None
     """
     abs_source = pathlib.Path(source_file).resolve(strict=True)
     abs_target = pathlib.Path(target_dir).resolve(strict=False)
@@ -27,12 +41,23 @@ def rsync_f2d(source_file, target_dir):
     return
 
 
+DOCREC.add_function_doc(rsync_f2d)
+
+
 def rsync_f2f(source_file, target_file):
     """
     Convenience function to 'rsync' a source
     file to a target location (copy file
     and change name) in a 'run' block of
-    a Snakemake rule.
+    a Snakemake rule. Creates necessary
+    subdirectories for target.
+
+    Args:
+        source_file (str | pathlib.Path): the source file path
+        target_file (str | pathlib.Path): the target file path
+
+    Returns:
+        None
     """
     abs_source = pathlib.Path(source_file).resolve(strict=True)
     abs_target = pathlib.Path(target_file).resolve(strict=False)
@@ -41,11 +66,21 @@ def rsync_f2f(source_file, target_file):
     return
 
 
+DOCREC.add_function_doc(rsync_f2f)
+
+
 def _rsync(source, target):
     """
     Abstract function realizing 'rsync' calls;
     do not call this function, use 'rsync_f2f'
     or 'rsync_f2d'.
+
+    Args:
+        source_file (str): the source file path
+        target_file (str): the target file path
+
+    Returns:
+        None
     """
     cmd = ["rsync", "--quiet", "--checksum", source, target]
     try:

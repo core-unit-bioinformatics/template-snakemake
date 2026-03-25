@@ -485,6 +485,47 @@
     None
 ```
 
+## Module: commons::40-pyutils::20_simple_fs.smk
+
+**Module file**: `workflow/rules/commons/40-pyutils/20_simple_fs.smk`
+
+### Documentation level: GLOBALFUN
+
+1. rsync_f2d
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Convenience function to 'rsync' a source
+    file into a target directory (file name
+    not changed) in a 'run' block of a
+    Snakemake rule. Creates necessary
+    subdirectories for target.
+
+    Args:
+    source_file (str | pathlib.Path): the source file path
+    target_dir (str | pathlib.Path): the target directory
+
+    Returns:
+    None
+```
+2. rsync_f2f
+    - datatype: <class 'function'>
+    - documentation: 
+```
+    Convenience function to 'rsync' a source
+    file to a target location (copy file
+    and change name) in a 'run' block of
+    a Snakemake rule. Creates necessary
+    subdirectories for target.
+
+    Args:
+    source_file (str | pathlib.Path): the source file path
+    target_file (str | pathlib.Path): the target file path
+
+    Returns:
+    None
+```
+
 ## Module: commons::40-pyutils::85_template_accounting.smk
 
 **Module file**: `workflow/rules/commons/40-pyutils/85_template_accounting.smk`
