@@ -97,7 +97,9 @@ DOCREC.add_member_doc(
     (
         "Recommended alias/shorthand for `DIR_REPOSITORY`, i.e. the fully "
         "resolved directory path to the workflow repository. By convention, "
-        "this is always taken to be the parent of the `workflow/` directory."
+        "this is always taken to be the parent of the `workflow/` directory. "
+        "CAVEAT: typically, this path will correspond to the top-level folder "
+        "of the repository ('the git root') but this is not checked."
     )
 )
 
