@@ -281,7 +281,7 @@
     - documentation: Relative path pointing to `proc` in the `WORKDIR`. All non-result files of the workflow can be addressed via `DIR_PROC.joinpath(...)` in Snakemake rules.
 9. DIR_REPO
     - datatype: <class 'pathlib.PosixPath'>
-    - documentation: Recommended alias/shorthand for `DIR_REPOSITORY`, i.e. the fully resolved directory path to the workflow repository. By convention, this is always taken to be the parent of the `workflow/` directory.
+    - documentation: Recommended alias/shorthand for `DIR_REPOSITORY`, i.e. the fully resolved directory path to the workflow repository. By convention, this is always taken to be the parent of the `workflow/` directory. CAVEAT: typically, this path will correspond to the top-level folder of the repository ('the git root') but this is not checked.
 10. DIR_RES
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path pointing to `results` in the `WORKDIR`. All result files of the workflow can be addressed via `DIR_RES.joinpath(...)` in Snakemake rules.
@@ -331,6 +331,22 @@
 2. RUN_CONFIG_RELPATH
     - datatype: <class 'pathlib.PosixPath'>
     - documentation: Relative path to the copy of the workflow configuration YAML that is placed in the results folder. This is only used as a trigger file in the rules of the main Snakefile.
+
+## Module: commons::30-settings::20-environment::20_accounting.smk
+
+**Module file**: `workflow/rules/commons/30-settings/20-environment/20_accounting.smk`
+
+### Documentation level: USERCONFIG
+
+1. RESET_ACCOUNTING
+    - datatype: <class 'bool'>
+    - documentation: If the workflow can no longer be executed because the file accounting information creates a deadlock (see `docs/template/accounting.md` for details), you can erase the accounting metadata by setting the command line switch `--config resetacc=True`. Workflow developers typically do not need to access this variable.
+
+### Documentation level: DEVONLY
+
+1. ACCOUNTING_FILES
+    - datatype: <class 'dict'>
+    - documentation: A look-up data structure that enables name-based access to the three different accounting files capturing input, reference and result file metadata. This is DEPRECATED and should be turned into global variables as part of the template file constants module. See gh#52
 
 ## Module: commons::40-pyutils::05_simple_get.smk
 
