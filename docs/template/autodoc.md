@@ -8,7 +8,7 @@
 
 1. run_all
     - datatype: <class 'snakemake.rules.Rule'>
-    - documentation: 
+    - documentation:
 ```
     This is the default target rule to trigger
     the execution of all rules in the workflow.
@@ -24,7 +24,7 @@
 ```
 2. run_all_no_manifest
     - datatype: <class 'snakemake.rules.Rule'>
-    - documentation: 
+    - documentation:
 ```
     This rule is an alternative target to the
     'run_all' rule that triggers the same series
@@ -37,7 +37,7 @@
 ```
 3. run_build_docs
     - datatype: <class 'snakemake.rules.Rule'>
-    - documentation: 
+    - documentation:
 ```
     Target this rule to update the auto-generated
     documentation. This only updates the files:
@@ -48,7 +48,7 @@
 ```
 4. run_tests
     - datatype: <class 'snakemake.rules.Rule'>
-    - documentation: 
+    - documentation:
 ```
     This rule triggers executing the testing
     module of the workflow template located in
@@ -66,7 +66,7 @@
 ```
 5. run_tests_no_manifest
     - datatype: <class 'snakemake.rules.Rule'>
-    - documentation: 
+    - documentation:
 ```
     The analogous rule to 'run_all_no_manifest'
     for running the tests w/o creating a file
@@ -97,7 +97,7 @@
 
 1. add_function_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
+    - documentation:
 ```
     This function of the DocRecorder class / DOCREC instance
     must be called to document either module-level / global
@@ -114,7 +114,7 @@
 ```
 2. add_member_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
+    - documentation:
 ```
     This function of the DocRecorder class / DOCREC instance
     must be called to document module-level members, i.e. global
@@ -139,7 +139,7 @@
 ```
 3. add_module_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
+    - documentation:
 ```
     This member function must be called at the beginning
     of each new module to record the documentation
@@ -154,7 +154,7 @@
 ```
 4. add_rule_doc
     - datatype: <class 'snakemake.workflow.DocRecorder'>.<class 'method'>
-    - documentation: 
+    - documentation:
 ```
     This function of the DocRecorder class / DOCREC instance
     must be called to document Snakemake rules that represent
@@ -356,7 +356,7 @@
 
 1. find_script
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Original version of 'get_script'.
 
@@ -364,14 +364,14 @@
 ```
 2. get_hostname
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Returns:
     host (str): name of host machine
 ```
 3. get_script
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Utility function to locate script files underneath
     DIR_SCRIPTS. The intended usage context is inside
@@ -396,7 +396,7 @@
 ```
 4. get_timestamp
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Get naive (not timezone-aware)
     timestamp representing 'now'.
@@ -410,7 +410,7 @@
 ```
 5. get_username
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Returns:
     user (str): login name of current user
@@ -424,19 +424,19 @@
 
 1. log_err
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Alias for 'loggerr'
 ```
 2. log_out
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Alias for 'logout'
 ```
 3. logerr
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Log a message to sys.stderr.
     If VERBOSE is set, the level is
@@ -452,7 +452,7 @@
 ```
 4. logout
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Log a message to sys.stdout with level
     INFO. The message is prefixed with
@@ -466,7 +466,7 @@
 ```
 5. write_log_message
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Log a message with info 'level' to 'stream',
     which must feature a write method. By default,
@@ -493,7 +493,7 @@
 
 1. rsync_f2d
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Convenience function to 'rsync' a source
     file into a target directory (file name
@@ -510,7 +510,7 @@
 ```
 2. rsync_f2f
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Convenience function to 'rsync' a source
     file to a target location (copy file
@@ -526,6 +526,73 @@
     None
 ```
 
+## Module: commons::40-pyutils::80_template_refcon.smk
+
+**Module file**: `workflow/rules/commons/40-pyutils/80_template_refcon.smk`
+
+### Documentation level: GLOBALFUN
+
+1. refcon_find_container
+    - datatype: <class 'function'>
+    - documentation:
+```
+    Given the requested ref_filename as input,
+    find the matching reference container that can provide
+    this file. Throws for ambiguous or no matchings.
+
+    TODO: adapt this function to also work in a lenient
+    mode that simply checks if the requested file already
+    exists in GLOBAL_REF and then returns False to sidestep
+    a forced data loading from a container (accept that the
+    user manually copies a reference file into the global
+    reference folder).
+
+    Args:
+    manifest_cache (pathlib.Path): path to reference container manifest cache file
+    ref_filename (str): the name of the reference file we are looking for
+
+    Returns:
+    pathlib.Path: the path to the reference container holding the reference file
+```
+2. refcon_find_container
+    - datatype: <class 'function'>
+    - documentation:
+```
+    Given the requested ref_filename as input,
+    find the matching reference container that can provide
+    this file. Throws for ambiguous or no matchings.
+
+    TODO: adapt this function to also work in a lenient
+    mode that simply checks if the requested file already
+    exists in GLOBAL_REF and then returns False to sidestep
+    a forced data loading from a container (accept that the
+    user manually copies a reference file into the global
+    reference folder).
+
+    Args:
+    manifest_cache (pathlib.Path): path to reference container manifest cache file
+    ref_filename (str): the name of the reference file we are looking for
+
+    Returns:
+    pathlib.Path: the path to the reference container holding the reference file
+```
+3. trigger_refcon_manifest_caching
+    - datatype: <class 'function'>
+    - documentation:
+```
+    This function merely triggers the checkpoint
+    to merge all reference containers caches into
+    one. This checkpoint is needed to get a
+    start-to-end run, otherwise "refcon_find_container"
+    would produce an error.
+
+    Args:
+    wildcards (dict): the Snakemake wildcards object
+
+    Returns:
+    pathlib.Path: the path to the reference container manifest cache file
+```
+
 ## Module: commons::40-pyutils::85_template_accounting.smk
 
 **Module file**: `workflow/rules/commons/40-pyutils/85_template_accounting.smk`
@@ -534,7 +601,7 @@
 
 1. _load_data_line
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Simple utility function that reads the file metadata
     (= file size or checksums) from the respective files
@@ -547,7 +614,7 @@
 ```
 2. load_accounting_information
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     This function loads the file paths from all
     three accounting files to force creation
@@ -564,7 +631,7 @@
 ```
 3. load_file_by_path_id
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Simple utility function that extracts
     the source file path from the accounting
@@ -580,7 +647,7 @@
 ```
 4. process_accounting_record
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     This function is called for each entry in the accounting
     files (= one input, reference or result file) and then
@@ -596,7 +663,7 @@
 ```
 5. register_input
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     TODO: potential breaking change - ?
     Fix English for keyword argument: 'allow_non_existent'
@@ -647,7 +714,7 @@
 ```
 6. register_reference
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Register reference file(s) for the workflow manifest.
     The difference between 'input' and 'reference' is mostly
@@ -664,7 +731,7 @@
 ```
 7. register_result
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Register reference file(s) for the workflow manifest.
     The difference between 'input' and 'reference' is mostly
@@ -688,7 +755,7 @@
 
 1. _reset_file_accounts
     - datatype: <class 'function'>
-    - documentation: 
+    - documentation:
 ```
     Why is this function needed?
     - The way the file accounting currently caches
