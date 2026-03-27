@@ -78,7 +78,7 @@ DOCREC.add_member_doc(
         "You can set a 'suffix' string for this run that will "
         "be appended to the run manifest file and the copy of "
         "the sample sheet (if applicable): "
-        "`snakemake [...]` --config suffix=yoursuffix` "
+        "`snakemake [...] --config suffix=yoursuffix` "
         "This enables you, e.g., to distinguish between different "
         "sample sets that you process in the same workflow directory. "
         "The default value 'derive' triggers a dynamic suffix derived "
