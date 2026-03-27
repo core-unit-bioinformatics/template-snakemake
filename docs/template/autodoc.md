@@ -321,7 +321,7 @@
 
 1. RUN_SUFFIX
     - datatype: <class 'str'>
-    - documentation: You can set a 'suffix' string for this run that will be appended to the run manifest file and the copy of the sample sheet (if applicable): `snakemake [...]` --config suffix=yoursuffix` This enables you, e.g., to distinguish between different sample sets that you process in the same workflow directory. The default value 'derive' triggers a dynamic suffix derived from the file name of the sample sheet if used or is empty otherwise. The run suffix must only contain lower case letters a-z, number 0-9 and the hyphen/minus '-' sign.
+    - documentation: You can set a 'suffix' string for this run that will be appended to the run manifest file and the copy of the sample sheet (if applicable): `snakemake [...] --config suffix=yoursuffix` This enables you, e.g., to distinguish between different sample sets that you process in the same workflow directory. The default value 'derive' triggers a dynamic suffix derived from the file name of the sample sheet if used or is empty otherwise. The run suffix must only contain lower case letters a-z, number 0-9 and the hyphen/minus '-' sign.
 
 ### Documentation level: DEVONLY
 
