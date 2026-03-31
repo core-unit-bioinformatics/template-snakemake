@@ -98,9 +98,12 @@ def create_execution_environment(repo_folder, project_folder, conda_env_name):
         proc_out = sp.run(call_args, shell=False, capture_output=True, check=False)
         proc_out.check_returncode()  # check after to get stdout/stderr
     except sp.CalledProcessError as spe:
+        # NB: subprocess.run is executed w/ check=False and thus does not raise
+        # hence, proc_out cannot be unbound but Pylance does not recognize that;
+        # selective type: ignore
         logger.error(f"Could not create Snakemake execution environment: {spe}")
-        logger.error(f"\n=== STDOUT ===\n{proc_out.stdout.decode('utf-8')}")
-        logger.error(f"\n=== STDERR ===\n{proc_out.stderr.decode('utf-8')}")
+        logger.error(f"\n=== STDOUT ===\n{proc_out.stdout.decode('utf-8')}")  # type: ignore
+        logger.error(f"\n=== STDERR ===\n{proc_out.stderr.decode('utf-8')}")  # type: ignore
         raise
     return None
 
@@ -262,7 +265,7 @@ def _extract_directory_paths(module_path):
     logger = logging.getLogger(__name__)
 
     paths = dict()
-    ignore = None
+    ignore = []
     extracting = False
     logger.debug("Evaluating content of constants module")
     with open(module_path, "r") as module:
@@ -288,7 +291,7 @@ def _extract_directory_paths(module_path):
         f"Extracted a total of {len(paths)} paths, {len(ignore)}"
         " of which to be ignored"
     )
-    assert ignore is not None
+    assert len(ignore) > 0
     return paths, ignore
 
 
