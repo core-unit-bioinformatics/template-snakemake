@@ -8,7 +8,6 @@ import pathlib as pl
 import subprocess as sp
 import sys
 
-
 # parent of the script's parent is one level above
 # the repository location
 DEFAULT_ROOT = pl.Path(__file__).resolve().parent.parent
@@ -259,9 +258,6 @@ def _extract_directory_paths(module_path):
     Args:
         module_path (pathlib.Path): Path to Snakemake constants module
     """
-    # import needed for eval() of Paths
-    import pathlib
-
     logger = logging.getLogger(__name__)
 
     paths = dict()
@@ -282,14 +278,23 @@ def _extract_directory_paths(module_path):
                 ignore = eval(line.strip().split("=")[-1])
             elif extracting:
                 path_name = line.strip().split(":")[0].strip()
-                path = eval(line.strip().split("=")[-1])
-                paths[path_name] = path
+                # why the stripping of pathlib?
+                # eval() would require an import of pathlib (no alias),
+                # hence eval() to str or tuple of str and then turn
+                # into pathlib.Path later
+                path_components = (
+                    line.strip().split("=")[-1].strip().strip("pathlib.Path")
+                )
+                path_components = eval(path_components)
+                try:
+                    paths[path_name] = pl.Path(path_components)
+                except TypeError:
+                    paths[path_name] = pl.Path(*path_components)
             else:
                 pass
 
     logger.debug(
-        f"Extracted a total of {len(paths)} paths, {len(ignore)}"
-        " of which to be ignored"
+        f"Extracted a total of {len(paths)} paths, {len(ignore)} of which to be ignored"
     )
     assert len(ignore) > 0
     return paths, ignore
