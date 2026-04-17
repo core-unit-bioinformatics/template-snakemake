@@ -71,9 +71,7 @@ def _find_cli_cache_file(is_main_process):
     just find the most recent file.
     """
     pgid = os.getpgid(0)
-    default_path = pathlib.Path(
-        f"{pgid}.cli.pck"
-    )
+    default_path = pathlib.Path(f"{pgid}.cli.pck")
     if default_path.is_file():
         cache_file = default_path
     elif is_main_process:
@@ -84,7 +82,7 @@ def _find_cli_cache_file(is_main_process):
         cli_files = sorted(
             pathlib.Path(".").glob("*.cli.pck"),
             key=lambda fp: os.path.getmtime(fp),
-            reverse=True
+            reverse=True,
         )
         # we select the most recent one, sorted
         # above by mtime from higher (younger)
@@ -111,8 +109,7 @@ def _dump_cli_cache_file(cache_file, smk_args):
 
 
 def _read_cli_cache_file(cache_file):
-    """
-    """
+    """ """
     with open(_SMK_CLI_CAPTURE_CACHE_FILE, "rb") as cache:
         smk_args = pickle.load(cache)
     return smk_args

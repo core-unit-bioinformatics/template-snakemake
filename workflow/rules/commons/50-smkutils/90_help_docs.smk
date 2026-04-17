@@ -6,6 +6,7 @@ auto docs? see placeholder in
 commons::05_docgen.smk
 """
 
+
 localrules:
     show_help,
 

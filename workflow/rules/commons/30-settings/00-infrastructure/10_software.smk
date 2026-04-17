@@ -34,7 +34,7 @@ DOCREC.add_member_doc(
         "by Apptainer. "
         "The template uses this variable if CUBI-style "
         "reference containers are used."
-    )
+    ),
 )
 
 # this is to prep dropping Singularity support;
@@ -57,5 +57,5 @@ DOCREC.add_member_doc(
         "and needed to execute containerized tools. "
         "The template uses this variable if CUBI-style "
         "reference containers are used."
-    )
+    ),
 )

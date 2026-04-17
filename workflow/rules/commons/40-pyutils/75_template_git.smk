@@ -5,6 +5,7 @@ directory. The main function 'collect_git_labels'
 is only used as part of the template commons.
 """
 
+
 def _check_git_available():
     """Check if git executable
     is available on the host system.

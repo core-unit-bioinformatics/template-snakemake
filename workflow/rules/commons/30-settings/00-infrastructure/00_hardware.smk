@@ -13,9 +13,7 @@ DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
 
 
 # CPU limits
-CPU_LOW = config.get(
-    OPTIONS.cpu_low.name, OPTIONS.cpu_low.default
-)
+CPU_LOW = config.get(OPTIONS.cpu_low.name, OPTIONS.cpu_low.default)
 assert isinstance(CPU_LOW, int)
 
 DOCREC.add_member_doc(
@@ -32,13 +30,11 @@ DOCREC.add_member_doc(
         "by setting --config cpu_low=N or by adding the "
         "entry `cpu_low: N` to any of the Snakemake YAML "
         "configuration files read via `--configfiles`."
-    )
+    ),
 )
 
 
-CPU_MEDIUM = config.get(
-    OPTIONS.cpu_medium.name, OPTIONS.cpu_medium.default
-)
+CPU_MEDIUM = config.get(OPTIONS.cpu_medium.name, OPTIONS.cpu_medium.default)
 CPU_MED = CPU_MEDIUM
 assert isinstance(CPU_MEDIUM, int)
 
@@ -51,13 +47,11 @@ DOCREC.add_member_doc(
         "benefitting from modest parallelization. Typical values "
         "are in the range of 8 to 12. See the help for CPU_LOW "
         "for more details."
-    )
+    ),
 )
 
 
-CPU_HIGH = config.get(
-    OPTIONS.cpu_high.name, OPTIONS.cpu_high.default
-)
+CPU_HIGH = config.get(OPTIONS.cpu_high.name, OPTIONS.cpu_high.default)
 assert isinstance(CPU_HIGH, int)
 
 DOCREC.add_member_doc(
@@ -69,13 +63,11 @@ DOCREC.add_member_doc(
         "benefitting from high parallelization. Typical values "
         "are in the range of 16 to 24. See the help for CPU_LOW "
         "for more details."
-    )
+    ),
 )
 
 
-CPU_MAX = config.get(
-    OPTIONS.cpu_max.name, OPTIONS.cpu_max.default
-)
+CPU_MAX = config.get(OPTIONS.cpu_max.name, OPTIONS.cpu_max.default)
 assert isinstance(CPU_MAX, int)
 
 DOCREC.add_member_doc(
@@ -89,7 +81,7 @@ DOCREC.add_member_doc(
         "Note that this value must not be higher than "
         "the CPU limit of the infrastructure the workflow is "
         "running on. See the help for CPU_LOW for more details."
-    )
+    ),
 )
 
 # Memory limits
@@ -112,10 +104,6 @@ DOCREC.add_member_doc(
 MEM_MAX = None
 MEM_COMMON = None
 
-_MEM_MAX_CONFIG = config.get(
-    OPTIONS.mem_max.name, OPTIONS.mem_max.default
-)
+_MEM_MAX_CONFIG = config.get(OPTIONS.mem_max.name, OPTIONS.mem_max.default)
 
-_MEM_COMMON_CONFIG = config.get(
-    OPTIONS.mem_common.name, OPTIONS.mem_common.default
-)
+_MEM_COMMON_CONFIG = config.get(OPTIONS.mem_common.name, OPTIONS.mem_common.default)

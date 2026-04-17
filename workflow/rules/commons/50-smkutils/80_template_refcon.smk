@@ -13,7 +13,6 @@ if USE_REFERENCE_CONTAINER:
         refcon_dump_manifest,
         refcon_cache_manifests,
 
-
     rule refcon_dump_manifest:
         input:
             sif=DIR_REFCON.joinpath("{refcon_name}.sif"),
@@ -23,7 +22,6 @@ if USE_REFERENCE_CONTAINER:
             ENV_MODULE_SINGULARITY,
         shell:
             "{input.sif} manifest > {output.manifest}"
-
 
     rule refcon_run_get_file:
         """
@@ -58,7 +56,6 @@ if USE_REFERENCE_CONTAINER:
             acc_ref=lambda wildcards, output: register_reference(output),
         shell:
             "{params.refcon_path} get {wildcards.filename} {output}"
-
 
     checkpoint refcon_cache_manifests:
         input:

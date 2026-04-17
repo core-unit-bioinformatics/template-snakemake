@@ -20,26 +20,17 @@ class ConfigOptions:
     cpu_low: CFG_PARAM = CFG_PARAM(
         "cpu_low",
         2,
-        (
-            "Number of CPU cores (threads) to use"
-            " for small jobs. Default: 2"
-        )
+        ("Number of CPU cores (threads) to use" " for small jobs. Default: 2"),
     )
     cpu_medium: CFG_PARAM = CFG_PARAM(
         "cpu_medium",
         4,
-        (
-            "Number of CPU cores (threads) to use"
-            " for medium-sized jobs. Default: 4"
-        )
+        ("Number of CPU cores (threads) to use" " for medium-sized jobs. Default: 4"),
     )
     cpu_high: CFG_PARAM = CFG_PARAM(
         "cpu_high",
         6,
-        (
-            "Number of CPU cores (threads) to use"
-            " for large jobs. Default: 6"
-        )
+        ("Number of CPU cores (threads) to use" " for large jobs. Default: 6"),
     )
     cpu_max: CFG_PARAM = CFG_PARAM(
         "cpu_max",
@@ -51,7 +42,7 @@ class ConfigOptions:
             " number of CPU core available on a single"
             " server in the targeted compute"
             " infrastructure. Default: 8"
-        )
+        ),
     )
     mem_max: CFG_PARAM = CFG_PARAM(
         "mem_max",
@@ -64,7 +55,7 @@ class ConfigOptions:
             " (i.e. M/m/mb or G/g/gb etc.). This string is"
             " then internally processed and turned into"
             " an actual number representing the upper limit."
-        )
+        ),
     )
     mem_common: CFG_PARAM = CFG_PARAM(
         "mem_common",
@@ -82,7 +73,7 @@ class ConfigOptions:
             " (i.e. M/m/mb or G/g/gb etc.). This string is"
             " then internally processed and turned into"
             " an actual number / numerical value."
-        )
+        ),
     )
     devmode: CFG_PARAM = CFG_PARAM(
         "devmode",
@@ -113,7 +104,7 @@ class ConfigOptions:
             " printing the help info for certain"
             " config options that are irrelevant"
             " to end users. [Dev-only parameter]"
-        )
+        ),
     )
     resetacc: CFG_PARAM = CFG_PARAM(
         "resetacc",

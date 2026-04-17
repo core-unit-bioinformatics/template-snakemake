@@ -5,6 +5,7 @@ It must never contain or include
 anything else.
 """
 
+
 # At the moment, this module
 # is empty/contains just a
 # placefolder; this will be
@@ -15,7 +16,6 @@ anything else.
 # where it is otherwise not supported
 # out-of-the-box
 include: "05_docgen.smk"
-
 # Constants such as standard
 # folders inside the working
 # directory, and information
@@ -25,12 +25,10 @@ include: "10-constants/00_legacy.smk"
 include: "10-constants/10_capture_cli.smk"
 include: "10-constants/20_const_structs.smk"
 include: "10-constants/30_units.smk"
-
 # Description and default
 # values for all supported
 # generic config options
 include: "20_config_options.smk"
-
 # Module defining a large number
 # of global variables such as
 # relative paths to be used
@@ -42,7 +40,6 @@ include: "30-settings/20-environment/05_paths.smk"
 include: "30-settings/20-environment/10_file_constants.smk"
 include: "30-settings/20-environment/20_accounting.smk"
 include: "30-settings/20-environment/30_ref_container.smk"
-
 # Module containing Python-only
 # helper functions grouped by context.
 # *_simple modules contain helper functions
@@ -59,7 +56,6 @@ include: "40-pyutils/75_template_git.smk"
 include: "40-pyutils/80_template_refcon.smk"
 include: "40-pyutils/85_template_accounting.smk"
 include: "40-pyutils/90_template_staging.smk"
-
 # Module containing Snakemake rules
 # to accomplish template-specific
 # tasks such as creating the
@@ -71,6 +67,7 @@ include: "50-smkutils/80_template_refcon.smk"
 include: "50-smkutils/85_template_accounting.smk"
 include: "50-smkutils/90_help_docs.smk"
 
+
 # New small module branch containing
 # rules to test mostly the functionality
 # of the Python helper/utility functions
@@ -80,6 +77,7 @@ include: "50-smkutils/90_help_docs.smk"
 # Include only if needed / test run is
 # intended to minimize potential name clashes
 if RUN_IN_TEST_MODE:
+
     include: "99-testing/05_pythonics.smk"
     include: "99-testing/10_file_io.smk"
     include: "99-testing/20_refcon.smk"

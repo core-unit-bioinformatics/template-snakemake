@@ -2,6 +2,7 @@
 helper functions (logging, get_script etc)
 """
 
+
 rule create_test_file:
     """
     Implicitly tests pyutil functions
@@ -26,6 +27,7 @@ rule create_test_file:
         # END OF RUN BLOCK
 
 
+
 rule test_log_functions:
     """
     Test pyutil logging functions
@@ -44,6 +46,7 @@ rule test_log_functions:
         with open(output[0], "w") as testfile:
             testfile.write(f"Log test {wildcards.logtype} ok")
         # END OF RUN BLOCK
+
 
 
 rule test_find_script_success:
@@ -65,6 +68,7 @@ rule test_find_script_success:
         # END OF RUN BLOCK
 
 
+
 rule test_find_script_fail:
     input:
         rules.test_find_script_success.output,
@@ -84,6 +88,7 @@ rule test_find_script_fail:
         # END OF RUN BLOCK
 
 
+
 rule test_git_labels:
     input:
         rules.create_test_file.output,
@@ -99,13 +104,11 @@ rule test_git_labels:
         # END OF RUN BLOCK
 
 
+
 rule test_all_pythonics:
     input:
         rules.create_test_file.output,
-        expand(
-            rules.test_log_functions.output,
-            logtype=["err", "out"]
-        ),
+        expand(rules.test_log_functions.output, logtype=["err", "out"]),
         rules.test_find_script_success.output,
         rules.test_find_script_success.output,
         rules.test_git_labels.output,

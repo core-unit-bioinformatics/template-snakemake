@@ -23,6 +23,7 @@ rule test_rsync_f2d:
         # END OF RUN BLOCK
 
 
+
 rule test_rsync_f2f:
     input:
         rules.create_test_file.output,
@@ -56,8 +57,9 @@ rule test_rsync_fail:
         # END OF RUN BLOCK
 
 
+
 rule test_all_file_io:
     input:
         rules.test_rsync_f2d.output,
         rules.test_rsync_f2f.output,
-        rules.test_rsync_fail.output
+        rules.test_rsync_fail.output,

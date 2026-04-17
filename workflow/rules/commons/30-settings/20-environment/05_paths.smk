@@ -42,16 +42,14 @@ DOCREC.add_member_doc(
         "Fully resolved directory path in which the workflow's "
         "main snakefile resides. By convention, this path always "
         "ends with the last component `workflow/`."
-    )
+    ),
 )
 
 DOCREC.add_member_doc(
     DocLevel.GLOBALVAR,
     "PATH_SNAKEFILE",
     PATH_SNAKEFILE,
-    (
-        "Fully resolved file path of the workflow's main snakefile."
-    )
+    ("Fully resolved file path of the workflow's main snakefile."),
 )
 
 DOCREC.add_member_doc(
@@ -61,7 +59,7 @@ DOCREC.add_member_doc(
     (
         "Name of the workflow's main snakefile, which is always "
         "`Snakefile` by convention / best practices."
-    )
+    ),
 )
 
 
@@ -100,14 +98,12 @@ DOCREC.add_member_doc(
         "this is always taken to be the parent of the `workflow/` directory. "
         "CAVEAT: typically, this path will correspond to the top-level folder "
         "of the repository ('the git root') but this is not checked."
-    )
+    ),
 )
 
 # use of scripts is optional, but testing script is part
 # of the template (= must resolve)
-DIR_SCRIPTS = DIR_SNAKEFILE.joinpath(
-    CONST_DIRS.scripts
-).resolve(strict=True)
+DIR_SCRIPTS = DIR_SNAKEFILE.joinpath(CONST_DIRS.scripts).resolve(strict=True)
 
 DOCREC.add_member_doc(
     DocLevel.GLOBALVAR,
@@ -118,15 +114,13 @@ DOCREC.add_member_doc(
         "Any script used by the workflow can thus be addressed "
         "via `DIR_SCRIPTS.joinpath(...)`. "
         "See also the `get_script` function."
-    )
+    ),
 )
 
 # must also exist because of the template's
 # development and execution conda env/yaml
 # files
-DIR_ENVS = DIR_SNAKEFILE.joinpath(
-    CONST_DIRS.envs
-).resolve(strict=True)
+DIR_ENVS = DIR_SNAKEFILE.joinpath(CONST_DIRS.envs).resolve(strict=True)
 
 DOCREC.add_member_doc(
     DocLevel.GLOBALVAR,
@@ -136,7 +130,7 @@ DOCREC.add_member_doc(
         "Fully resolved directory path to `[..]/workflow/envs`. "
         "Any Conda environment yaml file used by the workflow "
         "can thus be addressed via `DIR_ENVS.joinpath(...)`."
-    )
+    ),
 )
 
 ### === IMPORTANT === ###
@@ -164,16 +158,11 @@ DOCREC.add_member_doc(
         "**CAUTION**: this parameter should only be used if absolutely "
         "necessary. All relevant directory paths should be addressed via "
         "the other global variables of this module."
-    )
+    ),
 )
 
 DOCREC.add_member_doc(
-    DocLevel.GLOBALVAR,
-    "WORKDIR",
-    WORKDIR,
-    (
-        "Alias/shorthand for `DIR_WORKING`."
-    )
+    DocLevel.GLOBALVAR, "WORKDIR", WORKDIR, ("Alias/shorthand for `DIR_WORKING`.")
 )
 
 # if the workflow is executed in development mode,
@@ -188,7 +177,7 @@ DOCREC.add_member_doc(
     (
         "If the workflow is executed with `--config devmode=True`, "
         "non-existing default paths are ignored and do not raise an error."
-    )
+    ),
 )
 
 WD_ABSPATH_PROCESSING = CONST_DIRS.proc.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -205,7 +194,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. All non-result files of the "
         "workflow can be addressed via `DIR_PROC.joinpath(...)` "
         "in Snakemake rules."
-    )
+    ),
 )
 
 WD_ABSPATH_RESULTS = CONST_DIRS.results.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -222,7 +211,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. All result files of the "
         "workflow can be addressed via `DIR_RES.joinpath(...)` "
         "in Snakemake rules."
-    )
+    ),
 )
 
 WD_ABSPATH_LOG = CONST_DIRS.log.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -239,7 +228,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. All log files of the "
         "workflow can be addressed via `DIR_LOG.joinpath(...)` "
         "in Snakemake rules."
-    )
+    ),
 )
 
 WD_ABSPATH_RSRC = CONST_DIRS.rsrc.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -257,7 +246,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. All resource ('benchmark') "
         "files of the workflow can be addressed via "
         "`DIR_LOG.joinpath(...)` in Snakemake rules."
-    )
+    ),
 )
 
 DOCREC.add_member_doc(
@@ -267,7 +256,7 @@ DOCREC.add_member_doc(
     (
         f"Relative path pointing to `{CONST_DIRS.rsrc}` "
         "in the `WORKDIR`. Alias for DIR_RSRC."
-    )
+    ),
 )
 
 WD_ABSPATH_CLUSTERLOG_OUT = CONST_DIRS.cluster_log_out.resolve(
@@ -285,7 +274,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. Only relevant in HPC environments. "
         "Intended to capture all stdout streams of executed rules/jobs "
         "(if applicable)."
-    )
+    ),
 )
 
 WD_ABSPATH_CLUSTERLOG_ERR = CONST_DIRS.cluster_log_err.resolve(
@@ -303,7 +292,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. Only relevant in HPC environments. "
         "Intended to capture all stderr streams of executed rules/jobs "
         "(if applicable)."
-    )
+    ),
 )
 
 WD_ABSPATH_GLOBAL_REF = CONST_DIRS.global_ref.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -320,7 +309,7 @@ DOCREC.add_member_doc(
         "in the `WORKDIR`. This default directory is the source "
         "location for all reference data files that are *not* "
         "being produced by the workflow itself."
-    )
+    ),
 )
 
 WD_ABSPATH_LOCAL_REF = CONST_DIRS.local_ref.resolve(strict=WD_PATHS_MUST_RESOLVE)
@@ -339,5 +328,5 @@ DOCREC.add_member_doc(
         "are produced programmatically by the workflow itself. "
         f"In other words, for each file in `{CONST_DIRS.local_ref}`, "
         "there must be a rule in the workflow that produces that file."
-    )
+    ),
 )

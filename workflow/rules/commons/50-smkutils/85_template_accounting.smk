@@ -3,6 +3,7 @@ to realize the file accounting / the
 manifest creation.
 """
 
+
 rule accounting_file_md5_size:
     """
     Compute MD5 checksum and file size
@@ -154,4 +155,4 @@ rule create_manifest:
         assert all(c in df.columns for c in reordered_columns)
         df = df[reordered_columns]
         df.to_csv(output.manifest, header=True, index=False, sep="\t")
-    # END OF RUN BLOCK
+        # END OF RUN BLOCK

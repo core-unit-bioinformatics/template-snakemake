@@ -37,5 +37,5 @@ DOCREC.add_member_doc(
         "determine whether or not the workflow is executed "
         "with a Snakemake legacy version (typically v7) or "
         "with a more recent release (typically v9+)."
-    )
+    ),
 )

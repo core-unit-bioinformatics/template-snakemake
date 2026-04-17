@@ -18,9 +18,7 @@ DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
 # needs to happen in the foreseeable
 # future; this dependency should be dropped
 # in one of the next major updates.
-WAIT_ACC_LOCK_SECS = config.get(
-    OPTIONS.acclock.name, OPTIONS.acclock.default
-)
+WAIT_ACC_LOCK_SECS = config.get(OPTIONS.acclock.name, OPTIONS.acclock.default)
 
 # should the accounting files be reset/emptied?
 RESET_ACCOUNTING = config.get(OPTIONS.resetacc.name, OPTIONS.resetacc.default)
@@ -36,7 +34,7 @@ DOCREC.add_member_doc(
         "details), you can erase the accounting metadata by setting the command "
         "line switch `--config resetacc=True`. Workflow developers typically do "
         "not need to access this variable."
-    )
+    ),
 )
 
 
@@ -64,5 +62,5 @@ DOCREC.add_member_doc(
         "different accounting files capturing input, reference and result file "
         "metadata. This is DEPRECATED and should be turned into global variables "
         "as part of the template file constants module. See gh#52"
-    )
+    ),
 )

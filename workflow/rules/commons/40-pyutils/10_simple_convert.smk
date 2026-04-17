@@ -11,6 +11,7 @@ and should not call other custom functions in
 their body.
 """
 
+
 def flatten_nested_paths(struct):
     """Given an arbitrarily nested structure
     of items assumed to be Paths, return

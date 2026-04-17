@@ -35,6 +35,7 @@ rule dump_config:
         # END OF RUN BLOCK
 
 
+
 if SAMPLE_SHEET_NAME is not None:
 
     localrules:
@@ -69,5 +70,3 @@ else:
             COPY_SAMPLE_SHEET_RELPATH,
         shell:
             "touch {output}"
-
-

@@ -13,9 +13,7 @@ _THIS_CONTEXT = DocContext.TEMPLATE
 DOCREC.add_module_doc(_THIS_CONTEXT, _THIS_MODULE)
 
 
-USE_REFERENCE_CONTAINER = config.get(
-    OPTIONS.refcon.name, OPTIONS.refcon.default
-)
+USE_REFERENCE_CONTAINER = config.get(OPTIONS.refcon.name, OPTIONS.refcon.default)
 USE_REFCON = USE_REFERENCE_CONTAINER  # shorthand
 assert isinstance(USE_REFERENCE_CONTAINER, bool)
 
@@ -33,7 +31,7 @@ DOCREC.add_member_doc(
         "workflow context at runtime. Note to users: setting this option "
         "to 'true' implies that the options 'reference_container_store' "
         "and 'reference_container_names' must be non-empty."
-    )
+    ),
 )
 
 
@@ -45,7 +43,7 @@ DOCREC.add_member_doc(
         "Shorthand for 'USE_REFERENCE_CONTAINER' - only available in "
         "the workflow context at runtime. See documentation for "
         "'USE_REFERENCE_CONTAINER' for details."
-    )
+    ),
 )
 
 
@@ -90,7 +88,7 @@ DOCREC.add_member_doc(
         "that contains the reference containers (*.sif files). "
         "Setting the option 'reference_container_store' to a non-empty "
         "value is required if 'use_reference_container' is set to 'true'."
-    )
+    ),
 )
 
 
@@ -102,7 +100,7 @@ DOCREC.add_member_doc(
         "Shorthand for 'DIR_REFERENCE_CONTAINER' - only available in "
         "the workflow context at runtime. See documentation for "
         "'DIR_REFERENCE_CONTAINER' for details."
-    )
+    ),
 )
 
 
@@ -113,5 +111,5 @@ DOCREC.add_member_doc(
     (
         "The path in the Snakemake working directory hierarchy that "
         "contains the manifest cache for all reference containers."
-    )
+    ),
 )

@@ -64,11 +64,17 @@ else:
     _deployment_method_conda = api.DeploymentMethod["CONDA"]
     _deployment_method_apptainer = api.DeploymentMethod["APPTAINER"]
     _deployment_method_env_modules = api.DeploymentMethod["ENV_MODULES"]
-    USE_CONDA = _deployment_method_conda in workflow.deployment_settings.deployment_method
-    USE_SINGULARITY = _deployment_method_apptainer in workflow.deployment_settings.deployment_method
+    USE_CONDA = (
+        _deployment_method_conda in workflow.deployment_settings.deployment_method
+    )
+    USE_SINGULARITY = (
+        _deployment_method_apptainer in workflow.deployment_settings.deployment_method
+    )
     USE_APPTAINER = USE_SINGULARITY
     USE_CONTAINER = USE_APPTAINER
-    USE_ENV_MODULES = _deployment_method_env_modules in workflow.deployment_settings.deployment_method
+    USE_ENV_MODULES = (
+        _deployment_method_env_modules in workflow.deployment_settings.deployment_method
+    )
 
 
 assert isinstance(VERBOSE, bool)
@@ -79,7 +85,7 @@ DOCREC.add_member_doc(
     (
         "Represents the info if the workflow is executed via `snakemake --verbose [...]`, "
         "i.e. Snakemake is printing verbose/debugging output."
-    )
+    ),
 )
 
 assert isinstance(DEBUG, bool)
@@ -90,7 +96,7 @@ DOCREC.add_member_doc(
     (
         "Represents the info if the workflow is executed via `snakemake --debug [...]`, "
         "which allows to set breakpoints in `run:` blocks."
-    )
+    ),
 )
 
 assert isinstance(DRYRUN, bool)
@@ -98,9 +104,7 @@ DOCREC.add_member_doc(
     DocLevel.GLOBALVAR,
     "DRYRUN",
     DRYRUN,
-    (
-        "Represents the info if the workflow is executed via `snakemake --dryrun [...]`."
-    )
+    ("Represents the info if the workflow is executed via `snakemake --dryrun [...]`."),
 )
 
 assert isinstance(USE_CONDA, bool)
@@ -108,9 +112,7 @@ DOCREC.add_member_doc(
     DocLevel.DEVONLY,
     "USE_CONDA",
     USE_CONDA,
-    (
-        "Represents the info if the workflow uses Conda for software deployment."
-    )
+    ("Represents the info if the workflow uses Conda for software deployment."),
 )
 
 assert isinstance(USE_SINGULARITY, bool)
@@ -120,7 +122,7 @@ DOCREC.add_member_doc(
     USE_SINGULARITY,
     (
         "Represents the info if the workflow uses Singularity (Apptainer) for software deployment."
-    )
+    ),
 )
 
 assert isinstance(USE_APPTAINER, bool)
@@ -130,7 +132,7 @@ DOCREC.add_member_doc(
     USE_APPTAINER,
     (
         "Represents the info if the workflow uses Apptainer (Singularity) for software deployment."
-    )
+    ),
 )
 
 assert isinstance(USE_ENV_MODULES, bool)
@@ -141,7 +143,7 @@ DOCREC.add_member_doc(
     (
         "Represents the info if the workflow uses '(environment) modules' for software deployment. "
         "This typically only applies to HPC infrastructures."
-    )
+    ),
 )
 
 
@@ -152,9 +154,7 @@ DOCREC.add_member_doc(
 # If a workflow is executed in development mode, we
 # can safely ignore, e.g., that some of the default
 # output directories are missing
-RUN_IN_DEV_MODE = config.get(
-    OPTIONS.devmode.name, OPTIONS.devmode.default
-)
+RUN_IN_DEV_MODE = config.get(OPTIONS.devmode.name, OPTIONS.devmode.default)
 assert isinstance(RUN_IN_DEV_MODE, bool)
 
 DOCREC.add_member_doc(
@@ -163,7 +163,7 @@ DOCREC.add_member_doc(
     RUN_IN_DEV_MODE,
     (
         "Represents the info if the workflow is executed via `snakemake --config devmode=True [...]`"
-    )
+    ),
 )
 
 # check if the workflow template tests are executed
@@ -180,5 +180,5 @@ DOCREC.add_member_doc(
     (
         "Represents the info if the workflow is executed via `snakemake [...] run_tests` "
         "or `snakemake [...] run_tests_no_manifest`."
-    )
+    ),
 )

@@ -65,8 +65,9 @@ RUN_SUFFIX = re.sub("\-\-+", "-", RUN_SUFFIX)
 
 if RUN_SUFFIX:
     # implies: it's not the empty string
-    assert re.match("^[a-z0-9\-]+$", RUN_SUFFIX, re.IGNORECASE) is not None,\
-        f"Invalid run suffix: {RUN_SUFFIX}"
+    assert (
+        re.match("^[a-z0-9\-]+$", RUN_SUFFIX, re.IGNORECASE) is not None
+    ), f"Invalid run suffix: {RUN_SUFFIX}"
     RUN_SUFFIX = f".{RUN_SUFFIX}"
 
 
@@ -85,7 +86,7 @@ DOCREC.add_member_doc(
         "from the file name of the sample sheet if used or is empty "
         "otherwise. The run suffix must only contain lower case "
         "letters a-z, number 0-9 and the hyphen/minus '-' sign."
-    )
+    ),
 )
 
 
@@ -116,7 +117,7 @@ DOCREC.add_member_doc(
         "Relative path to the copy of the workflow configuration YAML "
         "that is placed in the results folder. This is only used as a "
         "trigger file in the rules of the main Snakefile."
-    )
+    ),
 )
 
 
@@ -128,5 +129,5 @@ DOCREC.add_member_doc(
         "Relative path to the workflow manifest file that is created "
         "in the results folder. This is only used as a trigger file "
         "in the rules of the main Snakefile."
-    )
+    ),
 )

@@ -3,7 +3,6 @@ a run using reference containers, thus
 implicitly testing all related functions.
 """
 
-
 if USE_REFERENCE_CONTAINER:
     CONTAINER_TEST_FILES = [
         DIR_GLOBAL_REF.joinpath("genome.fasta.fai"),
