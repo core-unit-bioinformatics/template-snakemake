@@ -332,7 +332,7 @@ class DocRecorder:
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
 
-    def add_rule_doc(self, rule):
+    def add_rule_doc(self, smk_rule):
         """
         This function of the DocRecorder class / DOCREC instance
         must be called to document Snakemake rules that represent
@@ -341,20 +341,25 @@ class DocRecorder:
         Snakefile and potentially also to aggregation-style
         rules at the end of individual workflow modules.
 
+        Important: when running 'snakefmt', the keyword 'rule'
+        is problematic depending on where exactly in a line it
+        appears (e.g., below, it would be at the beginning of the line).
+        Hence, renamed the variable to 'smk_rule'.
+
         Args:
-            rule (snakemake.rules.Rule): rule to document
+            smk_rule (snakemake.rules.Rule): rule to document
 
         Returns:
             None
         """
         assert isinstance(
-            rule, snakemake.rules.Rule
-        ), f"Expect Rule object, not {type(rule)}"
-        datatype = str(type(rule))
+            smk_rule, snakemake.rules.Rule
+        ), f"Expect Rule object, not {type(smk_rule)}"
+        datatype = str(type(smk_rule))
         doc_level = DocLevel.TARGETRULE
-        harmonized_docstring = self._harmonize_docstring(rule.docstring)
+        harmonized_docstring = self._harmonize_docstring(smk_rule.docstring)
         docstring = f"\n```{harmonized_docstring}```"  # embed in Markdown code block
-        member_doc = MemberDoc(doc_level.value, rule.name, datatype, docstring)
+        member_doc = MemberDoc(doc_level.value, smk_rule.name, datatype, docstring)
         self.module_docs[self.active_module]["module_members"].append(member_doc)
         return
 
