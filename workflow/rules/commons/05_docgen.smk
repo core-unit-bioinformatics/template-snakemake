@@ -137,7 +137,7 @@ OrderedMemberDoc = collections.namedtuple(
 class DocRecorder:
 
     def __init__(self):
-        self.match_modname_components = re.compile("[A-Za-z0-9\.\-_]+")
+        self.match_modname_components = re.compile(r"[A-Za-z0-9\.\-_]+")
         self.repository = None
         self.module_files = None
         self.module_docs = dict()

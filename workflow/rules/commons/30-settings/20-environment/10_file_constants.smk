@@ -58,15 +58,15 @@ else:
 # Postprocess the run suffix to consist
 # only of digits, chars, and "minus"
 RUN_SUFFIX = RUN_SUFFIX.replace(".", "-").replace("_", "-")
-RUN_SUFFIX = "".join(re.findall("[a-z0-9\-]+", RUN_SUFFIX, re.IGNORECASE))
+RUN_SUFFIX = "".join(re.findall(r"[a-z0-9\-]+", RUN_SUFFIX, re.IGNORECASE))
 # in case the above resulted in two or more
 # consecutive hyphens, replace with single one
-RUN_SUFFIX = re.sub("\-\-+", "-", RUN_SUFFIX)
+RUN_SUFFIX = re.sub(r"\-\-+", "-", RUN_SUFFIX)
 
 if RUN_SUFFIX:
     # implies: it's not the empty string
     assert (
-        re.match("^[a-z0-9\-]+$", RUN_SUFFIX, re.IGNORECASE) is not None
+        re.match(r"^[a-z0-9\-]+$", RUN_SUFFIX, re.IGNORECASE) is not None
     ), f"Invalid run suffix: {RUN_SUFFIX}"
     RUN_SUFFIX = f".{RUN_SUFFIX}"
 
