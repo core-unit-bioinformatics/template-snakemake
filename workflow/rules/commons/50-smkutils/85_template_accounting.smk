@@ -71,6 +71,7 @@ rule create_manifest:
         import fileinput
         import collections
         import pandas
+        import os
 
         # The following checks if accounting files are actually
         # in use - it's possible to write a workflow w/o using
@@ -78,9 +79,14 @@ rule create_manifest:
         # exist / be used. Part of fix for gh#15.
         process_accounting_files = {}
         for accounting_file, file_path in ACCOUNTING_FILES.items():
-            if not file_path.is_file():
+            file_size = os.stat(file_path).st_size
+            # fix here: for new workflow executions, the accounting
+            # listing files are empty if the user did not execute
+            # Snakemake with the dry run flag; this should trigger
+            # the first error/info message below and not the second
+            if not file_path.is_file() or file_size == 0:
                 if VERBOSE:
-                    warn_msg = f"Warning: accounting file of type '{account_file}' not in use."
+                    warn_msg = f"Warning: accounting file of type '{accounting_file}' not in use."
                     logerr(warn_msg)
                 continue
             process_accounting_files[accounting_file] = file_path
@@ -89,21 +95,23 @@ rule create_manifest:
 
         if accounting_files_in_use == 0:
             target_rule = "run_all_no_manifest"
+            # the following check is deprecated
             if NAME_SNAKEFILE == "snaketests":
                 target_rule = "run_tests_no_manifest"
 
-            err_msg = "No accounting files marked as in use.\n"
+            err_msg = "\n ===vvv=== Please read the info below ===vvv=== \n"
+            err_msg += "No accounting files marked as in use.\n"
             err_msg += "This means one of three things:\n"
             err_msg += "0) You forgot to trigger the manifest creation\n"
-            err_msg += "by running Snakemake in dry run mode twice\n"
-            err_msg += "before the actual pipeline run.\n"
+            err_msg += "by not running Snakemake in dry run mode twice\n"
+            err_msg += "before the actual (non-dryrun) pipeline execution.\n"
             err_msg += "1) Your workflow does not consume input, does not use\n"
             err_msg += "any reference file(s) and also does not produce output.\n"
             err_msg += "Really? Are you sure?\n"
             err_msg += "2) You did not annotate the workflow rules with:\n"
-            err_msg += "commons/02_pyutils.smk::register_input()\n"
-            err_msg += "commons/02_pyutils.smk::register_result()\n"
-            err_msg += "commons/02_pyutils.smk::register_reference()\n"
+            err_msg += "commons/40-pyutils/85_template_accounting.smk::register_input()\n"
+            err_msg += "commons/40-pyutils/85_template_accounting.smk::register_result()\n"
+            err_msg += "commons/40-pyutils/85_template_accounting.smk::register_reference()\n"
             err_msg += "Please rerun the workflow twice in dry run mode...\n\n"
             err_msg += "snakemake --dry-run (or: -n) [...other options...]\n\n"
             err_msg += "...after fixing that.\n\n"
