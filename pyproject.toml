@@ -1,6 +1,6 @@
 [cubi.metadata]
 pid = "https://github.com/core-unit-bioinformatics/template-metadata-files"
-version = "1.7.0"
+version = "2.0.0"
 
 [tool.black]
 line-length = 88
@@ -11,7 +11,11 @@ profile = "black"
 [tool.ruff]
 line-length = 88
 indent-width = 4
-target-version = "py311"
+target-version = "py313"
+
+[tool.snakefmt]
+line_length = 88
+include = "\\.smk$|^Snakefile"
 
 [cubi.workflow.template]
 pid = "undefined"
@@ -31,6 +35,6 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
-select = [ "E", "F", "B", "I",]
+select = [ "E", "F", "B", "I", "UP",]
 ignore = []
 unfixable = [ "B",]
