@@ -27,7 +27,6 @@ rule create_test_file:
         # END OF RUN BLOCK
 
 
-
 rule test_log_functions:
     """
     Test pyutil logging functions
@@ -46,7 +45,6 @@ rule test_log_functions:
         with open(output[0], "w") as testfile:
             testfile.write(f"Log test {wildcards.logtype} ok")
         # END OF RUN BLOCK
-
 
 
 rule test_find_script_success:
@@ -68,7 +66,6 @@ rule test_find_script_success:
         # END OF RUN BLOCK
 
 
-
 rule test_find_script_fail:
     input:
         rules.test_find_script_success.output,
@@ -88,7 +85,6 @@ rule test_find_script_fail:
         # END OF RUN BLOCK
 
 
-
 rule test_git_labels:
     input:
         rules.create_test_file.output,
@@ -106,7 +102,7 @@ rule test_git_labels:
 
 rule create_sample_sheet:
     output:
-        tsv=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.tsv")
+        tsv=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.tsv"),
     params:
         acc_out=lambda wildcards, output: register_result(output.tsv),
     run:
@@ -128,14 +124,14 @@ rule create_sample_sheet:
             buffer.write("sample-b\t/path/to/data/b\tbar\n")
         with open(output.tsv, "w", encoding="ascii") as table:
             table.write(buffer.getvalue())
-    # END OF RUN BLOCK
+        # END OF RUN BLOCK
 
 
 rule test_read_samplesheet:
     input:
-        tsv=rules.create_sample_sheet.output.tsv
+        tsv=rules.create_sample_sheet.output.tsv,
     output:
-        ok=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.read.ok")
+        ok=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.read.ok"),
     params:
         acc_out=lambda wildcards, output: register_result(output.ok),
     run:
@@ -158,7 +154,7 @@ rule test_read_samplesheet:
             assert "sample-b" in samples
             with open(output.ok, "w") as testfile:
                 _ = testfile.write("sample sheet read test ok")
-    # END OF RUN BLOCK
+        # END OF RUN BLOCK
 
 
 rule test_all_pythonics:
@@ -170,5 +166,5 @@ rule test_all_pythonics:
         rules.test_git_labels.output,
         expand(
             rules.test_read_samplesheet.output,
-            variant=["invalid", "incomplete", "valid"]
+            variant=["invalid", "incomplete", "valid"],
         ),

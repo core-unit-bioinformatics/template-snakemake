@@ -59,10 +59,8 @@ SAMPLE_SHEET[MSSC.karyotype]  # returns the respective pandas.Series
 
 """
 
-
 import dataclasses
 import enum
-
 
 _THIS_MODULE = ["10_sample_sheet.smk"]
 _THIS_CONTEXT = DocContext.TEMPLATE
@@ -109,12 +107,14 @@ DOCREC.add_member_doc(
         "repository and, potentially, a more detailed description in the "
         "`docs/` subfolder of the repository; in other words, this help is "
         "targeting workflow developers."
-    )
+    ),
 )
 
 DOCREC.add_member_doc(
-    DocLevel.GLOBALOBJ, "MSSC", MSSC,
-    ("Alias/shorthand for MANDATORY_SAMPLE_SHEET_COLUMNS")
+    DocLevel.GLOBALOBJ,
+    "MSSC",
+    MSSC,
+    ("Alias/shorthand for MANDATORY_SAMPLE_SHEET_COLUMNS"),
 )
 
 
@@ -132,5 +132,5 @@ DOCREC.add_member_doc(
         "columns, and, by construction, it is only guaranteed that the mandatory "
         "sample sheet columns are present. However, no value sanity checking or "
         "the like is performed at runtime"
-    )
+    ),
 )

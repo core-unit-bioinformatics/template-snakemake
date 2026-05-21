@@ -22,7 +22,7 @@ class InputPathColumn(enum.Enum):
 class MinimalSampleSheetColumns:
     sample: str = SampleColumn(0).name
     input_path: str = InputPathColumn(0).name
-    _column_alias_names: dict[str|str] = dataclasses.field(
+    _column_alias_names: dict[str | str] = dataclasses.field(
         init=False, default_factory=dict
     )
 

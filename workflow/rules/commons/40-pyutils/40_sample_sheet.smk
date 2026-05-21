@@ -1,7 +1,6 @@
 import io
 import pandas
 
-
 _THIS_MODULE = ["commons", "40-pyutils", "40_sample_sheet.smk"]
 _THIS_CONTEXT = DocContext.TEMPLATE
 
