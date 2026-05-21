@@ -79,7 +79,10 @@ rule create_manifest:
         # exist / be used. Part of fix for gh#15.
         process_accounting_files = {}
         for accounting_file, file_path in ACCOUNTING_FILES.items():
-            file_size = os.stat(file_path).st_size
+            try:
+                file_size = os.stat(file_path).st_size
+            except FileNotFoundError:
+                file_size = 0
             # fix here: for new workflow executions, the accounting
             # listing files are empty if the user did not execute
             # Snakemake with the dry run flag; this should trigger
