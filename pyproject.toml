@@ -20,7 +20,7 @@ include = "\\.smk$|^Snakefile"
 [cubi.workflow.template]
 pid = "https://github.com/core-unit-bioinformatics/template-snakemake"
 system = "smk"
-version = "2.0.0"
+version = "2.1.0"
 
 [tool.pylint.format]
 max-line-length = "88"
