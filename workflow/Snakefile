@@ -3,6 +3,16 @@
 # executed in testing mode
 include: "rules/commons/00_commons.smk"
 
+# Introduced in v2.1.0
+# Templated base functionality to standardize
+# sample sheet handling. This snakemake module
+# will typically include workflow-specific
+# changes - just like 00_modules.smk below -
+# and thus exists outside of the 'commons'
+# folder hierarchy.
+include: "rules/10_sample_sheet.smk"
+
+
 if not RUN_IN_TEST_MODE:
     include: "rules/00_modules.smk"
     include: "rules/99_aggregate.smk"

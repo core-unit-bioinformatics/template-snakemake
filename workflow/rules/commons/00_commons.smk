@@ -25,6 +25,7 @@ include: "10-constants/00_legacy.smk"
 include: "10-constants/10_capture_cli.smk"
 include: "10-constants/20_const_structs.smk"
 include: "10-constants/30_units.smk"
+include: "10-constants/40_sheet_columns.smk"
 # Description and default
 # values for all supported
 # generic config options
@@ -52,6 +53,7 @@ include: "40-pyutils/05_simple_get.smk"
 include: "40-pyutils/10_simple_convert.smk"
 include: "40-pyutils/15_simple_logging.smk"
 include: "40-pyutils/20_simple_fs.smk"
+include: "40-pyutils/40_sample_sheet.smk"
 include: "40-pyutils/75_template_git.smk"
 include: "40-pyutils/80_template_refcon.smk"
 include: "40-pyutils/85_template_accounting.smk"
