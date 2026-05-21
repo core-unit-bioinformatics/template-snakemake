@@ -104,6 +104,62 @@ rule test_git_labels:
         # END OF RUN BLOCK
 
 
+rule create_sample_sheet:
+    output:
+        tsv=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.tsv")
+    params:
+        acc_out=lambda wildcards, output: register_result(output.tsv),
+    run:
+        import io
+
+        buffer = io.StringIO()
+        buffer.write("# comment line\n#more comments\n")
+        if wildcards.variant == "invalid":
+            buffer.write("sample-id\tinput.data\tother\n")
+        elif wildcards.variant == "incomplete":
+            buffer.write("sample_id\tmetadata\n")
+        else:
+            buffer.write("sample_id\tinput_data\tmetadata\n")
+        if wildcards.variant == "incomplete":
+            buffer.write("sample.a\tfoo\n")
+            buffer.write("sample-b\tbar\n")
+        else:
+            buffer.write("sample.a\t/path/to/a\tfoo\n")
+            buffer.write("sample-b\t/path/to/data/b\tbar\n")
+        with open(output.tsv, "w", encoding="ascii") as table:
+            table.write(buffer.getvalue())
+    # END OF RUN BLOCK
+
+
+rule test_read_samplesheet:
+    input:
+        tsv=rules.create_sample_sheet.output.tsv
+    output:
+        ok=DIR_PROC.joinpath("testing", "sample_sheet.{variant}.read.ok")
+    params:
+        acc_out=lambda wildcards, output: register_result(output.ok),
+    run:
+        if wildcards.variant == "invalid":
+            try:
+                _ = read_sample_sheet(input.tsv, MSSC)
+            except ValueError:
+                with open(output.ok, "w") as testfile:
+                    _ = testfile.write("sample sheet invalid header test ok")
+        elif wildcards.variant == "incomplete":
+            try:
+                _ = read_sample_sheet(input.tsv, MSSC)
+            except RuntimeError:
+                with open(output.ok, "w") as testfile:
+                    _ = testfile.write("sample sheet incomplete header test ok")
+        else:
+            sample_sheet = read_sample_sheet(input.tsv, MSSC)
+            samples = sorted(set(sample_sheet[MSSC.sample]))
+            assert "sample.a" in samples
+            assert "sample-b" in samples
+            with open(output.ok, "w") as testfile:
+                _ = testfile.write("sample sheet read test ok")
+    # END OF RUN BLOCK
+
 
 rule test_all_pythonics:
     input:
@@ -112,3 +168,7 @@ rule test_all_pythonics:
         rules.test_find_script_success.output,
         rules.test_find_script_success.output,
         rules.test_git_labels.output,
+        expand(
+            rules.test_read_samplesheet.output,
+            variant=["invalid", "incomplete", "valid"]
+        ),
