@@ -17,6 +17,7 @@ dependencies:
   # are still supported:
   - pyyaml=6.0.*
   - toml=0.10.*
+  - tomlkit=0.15.*
   - semver=3.*
   # =====
   # BEGIN: DEV EXCLUDE
